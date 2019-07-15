@@ -161,6 +161,7 @@ public static class Advert
         public ShowOpt[] interstitial = new ShowOpt[3];
         public BannerOpt banner;
         public RewardedVideoOptions rewardedVideoOpt;
+        [Serializable]
         public class ShowOpt
         {
             public bool enabled;
@@ -168,11 +169,13 @@ public static class Advert
             public AdServices serv;
             public int interval;
         }
+        [Serializable]
         public class BannerOpt
         {
             public bool enabled;
             public AdServices serv;
         }
+        [Serializable]
         public class RewardedVideoOptions
         {
             public bool enabled;
@@ -187,6 +190,7 @@ public static class Advert
         }
         public static AdConfig SetDefaultConfig()
         {
+            Debug.Log("[Sweet Boom Editor] Default config setted.");
             AdConfig conf = new AdConfig()
             {
                 unityAdsEnable = false,
@@ -229,7 +233,7 @@ public static class Advert
                 {
                     enabled = false,
                     serv = AdServices.both
-                }
+                },
             };
             return conf;
         }

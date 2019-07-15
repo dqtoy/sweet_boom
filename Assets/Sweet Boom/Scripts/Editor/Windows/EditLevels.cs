@@ -121,24 +121,19 @@ public class EditLevels : EditorWindow {
             conf = LevelDatabase.data.settings;
             if (conf.adConfig != null)
             {
-                try
-                {
-                    adConfig = conf.adConfig;
-                }
-                catch { adConfig = Advert.AdConfig.SetDefaultConfig(); }
+                adConfig = conf.adConfig ?? Advert.AdConfig.SetDefaultConfig();
             }
             else adConfig = Advert.AdConfig.SetDefaultConfig();
         }
-        catch { adConfig = Advert.AdConfig.SetDefaultConfig(); }
-        try
+        catch
         {
-            foreach (GameObject obj in (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)))
-            {
-                if (obj.name == "MENU" && obj.tag == "GameUI") menuObj = obj;
-                else if (obj.name == "LEVELS" && obj.tag == "GameUI") levelObj = obj;
-            }
+            adConfig = Advert.AdConfig.SetDefaultConfig();
         }
-        catch { }
+        foreach (GameObject obj in (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)))
+        {
+            if (obj.name == "MENU" && obj.tag == "GameUI") menuObj = obj;
+            else if (obj.name == "LEVELS" && obj.tag == "GameUI") levelObj = obj;
+        }
     }
     private void OnDisable()
     {

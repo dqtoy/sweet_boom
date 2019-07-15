@@ -20,7 +20,6 @@ public class LevelDatabase : Editor {
         }
         set
         {
-            //EditLevels.shopItemsIAP = value;
             data.settings.shopItems = value;
             SaveData();
         } 
@@ -33,6 +32,7 @@ public class LevelDatabase : Editor {
     /// <returns></returns>
     public static void Initialization() // Load saved levels from json
     {
+        Debug.Log("[Sweet Boom Editor] Initialization");
         try
         {
             if (!File.Exists($"{Application.streamingAssetsPath}{saveFolderName}"))
@@ -49,15 +49,21 @@ public class LevelDatabase : Editor {
                     string[] fileDataAr = File.ReadAllLines($"{Application.streamingAssetsPath}{saveFolderName}");
                     string fileData = ""; 
                     foreach (var line in fileDataAr) fileData += line;
-                    //data = JsonConvert.DeserializeObject<GameData>(fileData);
                     data = JsonUtility.FromJson<GameData>(fileData);
                     if (data == null)
                     {
                         List<Level> levels = new List<Level>();
                         data = new GameData(levels, 0);
+                        data.settings = new ConfigurationSettings();
+                        data.settings.SetDefaultConfig();
                     }
                     else
                     {
+                        if (data.settings == null || data.settings.shopItems == null)
+                        {
+                            data.settings = new ConfigurationSettings();
+                            data.settings.SetDefaultConfig();
+                        }
                         NewLevelWin.popupLevelID = new int[data.levelCount];
                         NewLevelWin.selectLevelPopupInfo = new string[data.levelCount];
                         for (int i = 0; i < data.levels.Count; i++)
@@ -200,6 +206,8 @@ public class GameData // All game data from SweetBoom editor
     {
         this.levels = lvls;
         this.levelCount = levelCount;
+        this.settings = new ConfigurationSettings();
+        this.settings.SetDefaultConfig();
     }
     [JsonConstructor]
     public GameData(List<Level> lvls, int levelCount, ConfigurationSettings settings) : this(lvls, levelCount)
@@ -262,5 +270,44 @@ public class ConfigurationSettings // Settings for SweetBoom editor
         this.fps = fps;
         this.adConfig = adConfig;
         this.shopItems = shopItems;
+    }
+
+    public ConfigurationSettings() { }
+
+    public void SetDefaultConfig()
+    {
+        sortingLevelsInMenu = true;
+        randomizePositionOfIcons = false;
+        distance = 130;
+        size = 0.82f;
+        fps = false;
+        adConfig = Advert.AdConfig.SetDefaultConfig();
+        shopItems = new List<Shop.CoinShopItem>()
+        {
+            new Shop.CoinShopItem()
+            {
+                coinRew = 200,
+                price = "0.50",
+                unityIAPId = "test1",
+                appStoreId = "appStoreTest1",
+                googlePlayId = "googlePlayTest1"
+            },
+            new Shop.CoinShopItem()
+            {
+                coinRew = 500,
+                price = "0.99",
+                unityIAPId = "test2",
+                appStoreId = "appStoreTest2",
+                googlePlayId = "googlePlayTest2"
+            },
+            new Shop.CoinShopItem()
+            {
+                coinRew = 900,
+                price = "1.50",
+                unityIAPId = "test3",
+                appStoreId = "appStoreTest3",
+                googlePlayId = "googlePlayTest3"
+            }
+        };
     }
 }
