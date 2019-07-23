@@ -11,11 +11,15 @@ public class Shop : MonoBehaviour
 {
     [Header("LevelManager Script")] [SerializeField] private GameObject levelManager;
     [Header("Refill energy price")] [SerializeField] private int refillPrice;
+    [Header("Rewarded video button sprites")] [SerializeField] private Sprite[] rewButtonSprites;
+    [Header("RewVideo button")] [SerializeField] private Button rewVideoButton;
     [SerializeField] private TextMeshProUGUI coinBalanceTxt;
     [SerializeField] private Blocks[] boosters;
     [SerializeField] private GameObject coinSpawnParent, coinStoreItemPrefab, boosterParent, boosterStoreItemPrefab, coinStoreImageScaler, refillTxt;
     [HideInInspector] private TextMeshProUGUI[] boostersCountText;
     [SerializeField] private IAPManager purchaseManager;
+
+    public static bool rewardedVideoActivity { get; private set; }
 
     [HideInInspector] public int CoinBalanceUI 
     { 
@@ -30,10 +34,41 @@ public class Shop : MonoBehaviour
 
     private void Start() 
     {
-        if(!isShopInited) 
+        Advert.InitAdvertisement();
+        InitShop();
+        InitRewardedVideo();
+    }
+    /// <summary>
+    /// [EN] Called when user successfully complete rewarded video
+    /// [RU] Вызывается при успешном завершении просмотра вознаграждаемой рекламы пользователем
+    /// </summary>
+    public static void RewardedVideoSucceeded()
+    {
+        AddCoins(Save.gameData.settings.adConfig.rewardedVideoOpt.rewardedAdvertisementReward);
+    }
+    /// <summary>
+    /// [EN] Method for adding coins
+    /// [RU] Метод для добавления внутриигровой валюты
+    /// </summary>
+    /// <param name="amount">Amount of coins</param>
+    public static void AddCoins(int amount)
+    {
+        Save.saveData.Coins += amount;
+        SoundController.PlaySound(SoundController.SoundType.coins);
+    }
+
+    private void InitRewardedVideo()
+    {
+        rewVideoButton.onClick.AddListener(new UnityEngine.Events.UnityAction(OnRewardedVideoButtonClick));
+        if (Save.gameData.settings.adConfig.rewardedVideoOpt.enabled)
         {
-            isShopInited = true;
-            InitShop();
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
+            rewardedVideoActivity = true;
+        }
+        else
+        {
+            rewardedVideoActivity = false;
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
         }
     }
 
@@ -170,6 +205,14 @@ public class Shop : MonoBehaviour
                 SoundController.PlaySound(SoundController.SoundType.coins);
             }
         }
+    }
+
+    private void OnRewardedVideoButtonClick()
+    {
+        if (!rewardedVideoActivity)
+            return;
+        Advert.ShowRewardedVideo();
+        // TODO: сделать вознаграждаемую рекламу!!
     }
 
     public static void onPurchaseFailed()

@@ -35,6 +35,11 @@ public static class Save {
         saveData = new GameSave();
         InitSavedData();
     }
+    /// <summary>
+    /// [EN] Initialization of game data (levels, ads configs etc.)
+    /// [RU] Инициализация игровых данных (уровни, настройки рекламы и т.д.)
+    /// </summary>
+    /// <returns></returns>
     public static GameData InitGameData()
     {
         try
@@ -119,11 +124,12 @@ public static class Save {
         }
         /// <summary>
         /// <para>[EN] Set completed level to 'complete' and open next level</para>
-        /// <para>[RU] Делает уровень завершенным и открывает следующий</para>
+        /// <para>[RU] Помечает уровень как завершенный и открывает следующий</para>
         /// </summary>
         /// <param name="num">[EN] number of completed level</param>
         public void UnlockNewLevel(int num, int score, int stars)
         {
+            Debug.Log("unl");
             for(int i = 0; i < saveData.levels.Count; i++)
             {
                 if (saveData.levels[i].levelNum == num)
@@ -135,11 +141,18 @@ public static class Save {
                     }
                     else if (saveData.levels[i].status == LevelStatus.enabled)
                     {
+                        Debug.Log($"Completed: {num}, {saveData.levels.Count}");
                         saveData.levels[i].status = LevelStatus.completed;
                         saveData.levels[i].score = score;
                         saveData.levels[i].stars = stars;
-                        if (i + 1 < saveData.levels.Count && saveData.levels[i + 1].status == LevelStatus.locked) saveData.levels[i + 1].status = LevelStatus.enabled;
-                        else Debug.Log("[Sweet Boom Editor] This is last level.");
+                        if (i + 1 < saveData.levels.Count && saveData.levels[i + 1].status == LevelStatus.locked)
+                        {
+                            saveData.levels[i + 1].status = LevelStatus.enabled;
+                        }
+                        else if (i + 2 > saveData.levels.Count)
+                        {
+                            Debug.Log("[Sweet Boom Editor] This is last level.");
+                        }
                     }
                     else if (saveData.levels[i].status == LevelStatus.locked) Debug.LogError("[Sweet Boom Editor] Unknown error");
                 }
@@ -175,6 +188,10 @@ public static class Save {
             }
         }
     }
+    /// <summary>
+    /// [EN] Save slot wich presents each level
+    /// [RU] Класс представляющий каждый уровень в сохранении 
+    /// </summary>
     [Serializable]
     public class SaveSlot
     {

@@ -121,24 +121,19 @@ public class EditLevels : EditorWindow {
             conf = LevelDatabase.data.settings;
             if (conf.adConfig != null)
             {
-                try
-                {
-                    adConfig = conf.adConfig;
-                }
-                catch { adConfig = Advert.AdConfig.SetDefaultConfig(); }
+                adConfig = conf.adConfig ?? Advert.AdConfig.SetDefaultConfig();
             }
             else adConfig = Advert.AdConfig.SetDefaultConfig();
         }
-        catch { adConfig = Advert.AdConfig.SetDefaultConfig(); }
-        try
+        catch
         {
-            foreach (GameObject obj in (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)))
-            {
-                if (obj.name == "MENU" && obj.tag == "GameUI") menuObj = obj;
-                else if (obj.name == "LEVELS" && obj.tag == "GameUI") levelObj = obj;
-            }
+            adConfig = Advert.AdConfig.SetDefaultConfig();
         }
-        catch { }
+        foreach (GameObject obj in (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)))
+        {
+            if (obj.name == "MENU" && obj.tag == "GameUI") menuObj = obj;
+            else if (obj.name == "LEVELS" && obj.tag == "GameUI") levelObj = obj;
+        }
     }
     private void OnDisable()
     {
@@ -276,7 +271,7 @@ public class EditLevels : EditorWindow {
             leftTextureRect.x = 5;
             leftTextureRect.y = 150;
             leftTextureRect.width = Screen.width / 2 - 10;
-            leftTextureRect.height = 400;
+            leftTextureRect.height = 550;
             leftTexture.Apply();
 
             menuTextureRect.x = 305;
@@ -785,8 +780,8 @@ public class EditLevels : EditorWindow {
         #region Advertisement && shop settings
         else if(curTab == 2)
         {
-            editLevelsWindow.maxSize = new Vector2(600, 600);
-            editLevelsWindow.minSize = new Vector2(600, 600);
+            editLevelsWindow.maxSize = new Vector2(600, 700);
+            editLevelsWindow.minSize = new Vector2(600, 700);
             GUILayout.BeginArea(menuTextureRect);
             enableFpsCounter = EditorGUILayout.ToggleLeft("Enable fps counter in game", enableFpsCounter);
             EditorGUILayout.LabelField("Customization", EditorStyles.boldLabel);
@@ -806,8 +801,9 @@ public class EditLevels : EditorWindow {
             EditorGUI.BeginDisabledGroup(!adConfig.adMobEnable);
 
             EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("AdMob Settings", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("AdMob ID");
+            GUILayout.Label("App ID");
             adConfig.adMobID = EditorGUILayout.TextField(adConfig.adMobID);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
@@ -826,6 +822,7 @@ public class EditLevels : EditorWindow {
             EditorGUI.EndDisabledGroup();
 
             EditorGUI.BeginDisabledGroup(!adConfig.adMobEnable && !adConfig.unityAdsEnable);
+            EditorGUILayout.LabelField("Showing settings", EditorStyles.boldLabel);
             EditorGUILayout.BeginVertical("box");
             GUILayout.Label("Interstitial Ad");
             EditorGUILayout.BeginVertical("box");

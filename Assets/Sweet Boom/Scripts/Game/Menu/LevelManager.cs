@@ -108,7 +108,6 @@ public class LevelManager : MonoBehaviour {
     public void UpdateUI()
     {
         coinBalance.text = Save.saveData.Coins.ToString();
-        shopManager.GetComponent<Shop>().InitShop();
         UpdateLevels();
         UpdateEnergy();
     }
