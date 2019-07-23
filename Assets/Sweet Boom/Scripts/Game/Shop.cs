@@ -34,8 +34,27 @@ public class Shop : MonoBehaviour
 
     private void Start() 
     {
+        Advert.InitAdvertisement();
         InitShop();
         InitRewardedVideo();
+    }
+    /// <summary>
+    /// [EN] Called when user successfully complete rewarded video
+    /// [RU] Вызывается при успешном завершении просмотра вознаграждаемой рекламы пользователем
+    /// </summary>
+    public static void RewardedVideoSucceeded()
+    {
+        AddCoins(Save.gameData.settings.adConfig.rewardedVideoOpt.rewardedAdvertisementReward);
+    }
+    /// <summary>
+    /// [EN] Method for adding coins
+    /// [RU] Метод для добавления внутриигровой валюты
+    /// </summary>
+    /// <param name="amount">Amount of coins</param>
+    public static void AddCoins(int amount)
+    {
+        Save.saveData.Coins += amount;
+        SoundController.PlaySound(SoundController.SoundType.coins);
     }
 
     private void InitRewardedVideo()
@@ -43,13 +62,13 @@ public class Shop : MonoBehaviour
         rewVideoButton.onClick.AddListener(new UnityEngine.Events.UnityAction(OnRewardedVideoButtonClick));
         if (Save.gameData.settings.adConfig.rewardedVideoOpt.enabled)
         {
-            rewVideoButton.gameObject.GetComponent<SpriteRenderer>().sprite = rewButtonSprites[0];
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
             rewardedVideoActivity = true;
         }
         else
         {
             rewardedVideoActivity = false;
-            rewVideoButton.gameObject.GetComponent<SpriteRenderer>().sprite = rewButtonSprites[1];
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
         }
     }
 
@@ -192,6 +211,7 @@ public class Shop : MonoBehaviour
     {
         if (!rewardedVideoActivity)
             return;
+        Advert.ShowRewardedVideo();
         // TODO: сделать вознаграждаемую рекламу!!
     }
 

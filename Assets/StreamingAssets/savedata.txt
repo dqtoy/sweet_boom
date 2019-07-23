@@ -1,2 +1,2 @@
-{"levels":[{"levelNum":1,"status":2,"stars":1,"score":220},{"levelNum":2,"status":2,"stars":3,"score":445},{"levelNum":3,"status":1,"stars":0,"score":0}],"coins_":1700,"energy":4,"boostersCount":[2,1,
+{"levels":[{"levelNum":1,"status":2,"stars":1,"score":220},{"levelNum":2,"status":2,"stars":3,"score":445},{"levelNum":3,"status":1,"stars":0,"score":0}],"coins_":4300,"energy":4,"boostersCount":[2,1,
 0],"bombBooster":0,"searchBooster":0,"multiCandyBooster":0}

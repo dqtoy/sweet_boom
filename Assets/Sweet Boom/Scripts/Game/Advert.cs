@@ -16,8 +16,9 @@ public static class Advert
     private static bool isInit = false;
     private static BannerView banner;
     private static InterstitialAd interstitialAd;
+    private static RewardBasedVideoAd rewaredAd;
     private static bool isRewardedVideoEnabled_;
-
+    public static CurrentPlatform platform { get; set; }
     public static event Action onRewardedVideoComplete, onRewardedVideoSkipped, onRewardedVideoFailed;
 
     public static bool isRewardedVideoEnabled
@@ -35,28 +36,51 @@ public static class Advert
 
     public static void InitAdvertisement()
     {
-        if(!isInit)
+#if UNITY_ANDROID
+        platform = CurrentPlatform.android;
+#elif UNITY_IOS
+        platform = CurrentPlatform.ios;
+#else
+        platform = CurrentPlatform.undefined;
+#endif
+        if (!isInit)
         {
-            try
+            onRewardedVideoComplete += Shop.RewardedVideoSucceeded;
+            adConfig = Save.configuration?.adConfig ?? AdConfig.SetDefaultConfig();
+            if (adConfig.unityAdsEnable)
             {
-                adConfig = Save.configuration.adConfig;
-                if (adConfig.unityAdsEnable)
-                {
-                    if (Advertisement.isSupported) Advertisement.Initialize(adConfig.unityAdsID);
-                }
-                if (adConfig.adMobEnable)
-                {
-                    if (adConfig.interstitial[0].enabled || adConfig.interstitial[1].enabled || adConfig.interstitial[2].enabled)
-                        interstitialAd = new InterstitialAd(adConfig.adMobPictureID);
-                    if (adConfig.banner.enabled)
-                        banner = new BannerView("ca-app-pub-3940256099942544/6300978111", AdSize.Banner, AdPosition.Bottom);
-                }
-                isInit = true;
+                if (Advertisement.isSupported) Advertisement.Initialize(adConfig.unityAdsID);
             }
-            catch
+            if (adConfig.adMobEnable)
             {
-                adConfig = AdConfig.SetDefaultConfig();
+                MobileAds.Initialize(Save.gameData.settings.adConfig.adMobID);
+                if (adConfig.interstitial[0].enabled || adConfig.interstitial[1].enabled || adConfig.interstitial[2].enabled)
+                {
+                    if (platform == CurrentPlatform.android)
+                        interstitialAd = new InterstitialAd(adConfig.adMobAndroidPictureID);
+                    else if (platform == CurrentPlatform.ios)
+                        interstitialAd = new InterstitialAd(adConfig.adMobIOSPictureID);
+                }
+                if (adConfig.banner.enabled)
+                {
+                    if (platform == CurrentPlatform.android)
+                        banner = new BannerView(adConfig.adMobAndroidBannerID, AdSize.Banner, AdPosition.Bottom);
+                    else if (platform == CurrentPlatform.ios)
+                        banner = new BannerView(adConfig.adMobIOSBannerID, AdSize.Banner, AdPosition.Bottom);
+                }
+                if (adConfig.rewardedVideoOpt.enabled)
+                {
+                    rewaredAd = RewardBasedVideoAd.Instance;
+                    AdRequest request = new AdRequest.Builder().Build();
+                    if (platform == CurrentPlatform.android)
+                    {
+                        // TODO: Вознаграждаемая реклама AdMob
+                        rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobAndroidRewardedID);
+                    }
+                        
+                }
             }
+            isInit = true;
         }
     }
     public static void RefreshAdv()
@@ -125,8 +149,19 @@ public static class Advert
     
     public static void ShowRewardedVideo()
     {
-        if (Advertisement.IsReady("rewardedVideo"))
-            Advertisement.Show("rewardedVideo", new ShowOptions() { resultCallback = RewardedVideoResult });
+        switch (Save.gameData.settings.adConfig.rewardedVideoOpt.serv)
+        {
+            case AdServices.unityAds:
+                if (Advertisement.IsReady("rewardedVideo"))
+                    Advertisement.Show("rewardedVideo", new ShowOptions() { resultCallback = RewardedVideoResult });
+                break;
+            case AdServices.adMob:
+
+                break;
+            case AdServices.both:
+                break;
+        }
+        
     }
 
     public static void RewardedVideoResult(ShowResult result)
@@ -136,17 +171,6 @@ public static class Advert
             Debug.Log("[Sweet Boom Editor] Rewarded video complete!");
             onRewardedVideoComplete();
         }
-        /*
-        switch (result)
-        {
-            case ShowResult.Finished:
-                break;
-            case ShowResult.Failed:
-                break;
-            case ShowResult.Skipped:
-                break;
-        }
-        */
     }
 
     public static void CleanMemory()
@@ -157,7 +181,8 @@ public static class Advert
     public class AdConfig
     {
         public bool unityAdsEnable, adMobEnable;
-        public string unityAdsID, adMobID, adMobBannerID, adMobPictureID, adMobRewardedID;
+        public string unityAdsID, adMobID, adMobAndroidBannerID, adMobAndroidPictureID, adMobAndroidRewardedID;
+        public string adMobIOSBannerID, adMobIOSPictureID, adMobIOSRewardedID;
         public ShowOpt[] interstitial = new ShowOpt[3];
         public BannerOpt banner;
         public RewardedVideoOptions rewardedVideoOpt;
@@ -197,9 +222,12 @@ public static class Advert
                 adMobEnable = false,
                 unityAdsID = "",
                 adMobID = "",
-                adMobBannerID = "",
-                adMobPictureID = "",
-                adMobRewardedID = "",
+                adMobAndroidBannerID = "",
+                adMobAndroidPictureID = "",
+                adMobAndroidRewardedID = "",
+                adMobIOSBannerID = "",
+                adMobIOSPictureID = "",
+                adMobIOSRewardedID = "",
                 banner = new BannerOpt()
                 {
                     enabled = false,
@@ -244,5 +272,12 @@ public static class Advert
         unityAds,
         adMob,
         both
+    }
+
+    public enum CurrentPlatform
+    {
+        android,
+        ios,
+        undefined
     }
 }

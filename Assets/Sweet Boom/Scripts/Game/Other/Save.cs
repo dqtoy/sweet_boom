@@ -35,6 +35,11 @@ public static class Save {
         saveData = new GameSave();
         InitSavedData();
     }
+    /// <summary>
+    /// [EN] Initialization of game data (levels, ads configs etc.)
+    /// [RU] Инициализация игровых данных (уровни, настройки рекламы и т.д.)
+    /// </summary>
+    /// <returns></returns>
     public static GameData InitGameData()
     {
         try
@@ -183,6 +188,10 @@ public static class Save {
             }
         }
     }
+    /// <summary>
+    /// [EN] Save slot wich presents each level
+    /// [RU] Класс представляющий каждый уровень в сохранении 
+    /// </summary>
     [Serializable]
     public class SaveSlot
     {

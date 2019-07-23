@@ -113,7 +113,6 @@ public class LevelManager : MonoBehaviour {
     }
     public static void UpdateLevels()
     {
-        Debug.Log($"Save count: {Save.saveData.levels.Count}");
         try
         {
             levels = GameObject.FindGameObjectsWithTag("Level");

@@ -45,9 +45,9 @@ velsInMenu":false,"randomizePositionOfIcons":false,"fps":false,"distance":100.0,
 929,"adConfig":{"unityAdsEnable":true,"adMobEnable":true,"unityAdsID":"","adMobID":"","adMobBannerID"
 :"","adMobPictureID":"","adMobRewardedID":"","interstitial":[{"enabled":false,"showPlace":0,"serv":2,
 "interval":3},{"enabled":false,"showPlace":1,"serv":2,"interval":3},{"enabled":false,"showPlace":2,"s
-erv":2,"interval":3}],"banner":{"enabled":false,"serv":2},"rewardedVideoOpt":{"enabled":false,"serv":
-2,"rewardedAdvertisementReward":0}},"shopItems":[{"coinRew":200,"unityIAPId":"test1","googlePlayId":"
-googlePlayTest1","appStoreId":"appStoreTest1","price":"0.50"},{"coinRew":500,"unityIAPId":"test2","go
-oglePlayId":"googlePlayTest2","appStoreId":"appStoreTest2","price":"0.99"},{"coinRew":900,"unityIAPId
-":"test3","googlePlayId":"googlePlayTest3","appStoreId":"appStoreTest3","price":"1.50"}]}}
+erv":2,"interval":3}],"banner":{"enabled":false,"serv":2},"rewardedVideoOpt":{"enabled":true,"serv":2
+,"rewardedAdvertisementReward":200}},"shopItems":[{"coinRew":200,"unityIAPId":"test1","googlePlayId":
+"googlePlayTest1","appStoreId":"appStoreTest1","price":"0.50"},{"coinRew":500,"unityIAPId":"test2","g
+ooglePlayId":"googlePlayTest2","appStoreId":"appStoreTest2","price":"0.99"},{"coinRew":900,"unityIAPI
+d":"test3","googlePlayId":"googlePlayTest3","appStoreId":"appStoreTest3","price":"1.50"}]}}
 

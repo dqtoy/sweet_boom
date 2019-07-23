@@ -2329,7 +2329,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelManager: {fileID: 1156066061}
   refillPrice: 300
-  rewButtonSprites: []
+  rewButtonSprites:
+  - {fileID: 21300000, guid: 89083ebeffe9cc44fb6a3e35fa49c157, type: 3}
+  - {fileID: 21300000, guid: 755f5c1b631d4d34ea08c2524ae8cce3, type: 3}
   rewVideoButton: {fileID: 1642591810}
   coinBalanceTxt: {fileID: 1060509503}
   boosters:
