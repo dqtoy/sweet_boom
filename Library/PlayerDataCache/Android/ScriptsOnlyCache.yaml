@@ -3,6 +3,7 @@ ScriptsOnlyBuild:
     Assembly-CSharp.dll:
     - Blocks
     - Boosters
+    - CompleteProject.IAPManager
     - CrossSceneController
     - GameController
     - LevelController
@@ -29,34 +30,29 @@ ScriptsOnlyBuild:
     Unity.Timeline.dll:
     - UnityEngine.Timeline.AnimationTrack
     - UnityEngine.Timeline.TimelineAsset
-    Unity.ugui.dll:
+    UnityEditor.TestRunner.dll:
+    - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
+    - UnityEditor.TestTools.TestRunner.TestListCacheData
+    UnityEngine.Advertisements.dll:
+    - UnityEngine.Advertisements.Editor.Placeholder
+    UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
     - UnityEngine.UI.AspectRatioFitter
     - UnityEngine.UI.Button
     - UnityEngine.UI.CanvasScaler
+    - UnityEngine.UI.Dropdown
     - UnityEngine.UI.GraphicRaycaster
+    - UnityEngine.UI.HorizontalLayoutGroup
     - UnityEngine.UI.Image
     - UnityEngine.UI.Mask
     - UnityEngine.UI.RawImage
     - UnityEngine.UI.ScrollRect
+    - UnityEngine.UI.Scrollbar
     - UnityEngine.UI.Slider
-    UnityEditor.Graphs.dll:
-    - UnityEditor.Graphs.AnimationBlendTree.Graph
-    - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
-    - UnityEditor.Graphs.AnimationStateMachine.Graph
-    - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.StateNode
-    - UnityEditor.Graphs.AnimatorControllerTool
-    UnityEditor.TestRunner.dll:
-    - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
-    - UnityEditor.TestTools.TestRunner.TestListCacheData
-    UnityEngine.Advertisements.Editor.dll:
-    - UnityEngine.Advertisements.Editor.Placeholder
-    com.unity.multiplayer-hlapi.Runtime.dll:
-    - UnityEngine.Networking.NetworkCallbacks
-    - UnityEngine.Networking.NetworkIdentity
+    - UnityEngine.UI.Text
+    - UnityEngine.UI.Toggle
+    - UnityEngine.UI.VerticalLayoutGroup
   sceneClasses:
     Assets/Sweet Boom/Scenes/Game.unity:
     - Class: 1
@@ -88,37 +84,37 @@ ScriptsOnlyBuild:
     - Class: 111
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9802}
+      Script: {instanceID: 9850}
     - Class: 114
-      Script: {instanceID: 10080}
+      Script: {instanceID: 10112}
     - Class: 114
-      Script: {instanceID: 10332}
+      Script: {instanceID: 10362}
     - Class: 114
-      Script: {instanceID: 10374}
+      Script: {instanceID: 10410}
     - Class: 114
-      Script: {instanceID: 10604}
+      Script: {instanceID: 10626}
     - Class: 114
-      Script: {instanceID: 10908}
+      Script: {instanceID: 10898}
     - Class: 114
-      Script: {instanceID: 10986}
+      Script: {instanceID: 10970}
     - Class: 114
-      Script: {instanceID: 11126}
+      Script: {instanceID: 11102}
     - Class: 114
-      Script: {instanceID: 11412}
+      Script: {instanceID: 11380}
     - Class: 114
-      Script: {instanceID: 11636}
+      Script: {instanceID: 11592}
     - Class: 114
-      Script: {instanceID: 11678}
+      Script: {instanceID: 11632}
     - Class: 114
-      Script: {instanceID: 11760}
+      Script: {instanceID: 11708}
     - Class: 114
-      Script: {instanceID: 11892}
+      Script: {instanceID: 11836}
     - Class: 114
-      Script: {instanceID: 12274}
+      Script: {instanceID: 12184}
     - Class: 114
-      Script: {instanceID: 12314}
+      Script: {instanceID: 12222}
     - Class: 114
-      Script: {instanceID: 23060}
+      Script: {instanceID: 32660}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 124
@@ -150,21 +146,13 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 21
       Script: {instanceID: 0}
-    - Class: 23
-      Script: {instanceID: 0}
     - Class: 28
-      Script: {instanceID: 0}
-    - Class: 33
-      Script: {instanceID: 0}
-    - Class: 43
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
     - Class: 49
       Script: {instanceID: 0}
     - Class: 61
-      Script: {instanceID: 0}
-    - Class: 65
       Script: {instanceID: 0}
     - Class: 74
       Script: {instanceID: 0}
@@ -187,84 +175,78 @@ ScriptsOnlyBuild:
     - Class: 109
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 722}
-    - Class: 114
-      Script: {instanceID: 9802}
-    - Class: 114
       Script: {instanceID: 9850}
     - Class: 114
-      Script: {instanceID: 9922}
+      Script: {instanceID: 9978}
     - Class: 114
-      Script: {instanceID: 9958}
+      Script: {instanceID: 10030}
     - Class: 114
-      Script: {instanceID: 9962}
+      Script: {instanceID: 10056}
     - Class: 114
-      Script: {instanceID: 9984}
+      Script: {instanceID: 10066}
     - Class: 114
-      Script: {instanceID: 10012}
+      Script: {instanceID: 10070}
     - Class: 114
-      Script: {instanceID: 10038}
+      Script: {instanceID: 10112}
     - Class: 114
-      Script: {instanceID: 10068}
+      Script: {instanceID: 10338}
     - Class: 114
-      Script: {instanceID: 10080}
+      Script: {instanceID: 10352}
     - Class: 114
-      Script: {instanceID: 10266}
+      Script: {instanceID: 10362}
     - Class: 114
-      Script: {instanceID: 10302}
+      Script: {instanceID: 10410}
     - Class: 114
-      Script: {instanceID: 10314}
+      Script: {instanceID: 10502}
     - Class: 114
-      Script: {instanceID: 10320}
+      Script: {instanceID: 10626}
     - Class: 114
-      Script: {instanceID: 10332}
+      Script: {instanceID: 10652}
     - Class: 114
-      Script: {instanceID: 10374}
+      Script: {instanceID: 10858}
     - Class: 114
-      Script: {instanceID: 10474}
+      Script: {instanceID: 10904}
     - Class: 114
-      Script: {instanceID: 10604}
+      Script: {instanceID: 11102}
     - Class: 114
-      Script: {instanceID: 10636}
+      Script: {instanceID: 11122}
     - Class: 114
-      Script: {instanceID: 10862}
+      Script: {instanceID: 11222}
     - Class: 114
-      Script: {instanceID: 11052}
+      Script: {instanceID: 11376}
     - Class: 114
-      Script: {instanceID: 11126}
+      Script: {instanceID: 11380}
     - Class: 114
-      Script: {instanceID: 11148}
+      Script: {instanceID: 11394}
     - Class: 114
-      Script: {instanceID: 11412}
+      Script: {instanceID: 11478}
     - Class: 114
-      Script: {instanceID: 11428}
+      Script: {instanceID: 11592}
     - Class: 114
-      Script: {instanceID: 11524}
+      Script: {instanceID: 11632}
     - Class: 114
-      Script: {instanceID: 11554}
+      Script: {instanceID: 11708}
     - Class: 114
-      Script: {instanceID: 11636}
+      Script: {instanceID: 11808}
     - Class: 114
-      Script: {instanceID: 11678}
+      Script: {instanceID: 11920}
     - Class: 114
-      Script: {instanceID: 11760}
+      Script: {instanceID: 11968}
     - Class: 114
-      Script: {instanceID: 11864}
+      Script: {instanceID: 12052}
     - Class: 114
-      Script: {instanceID: 11982}
+      Script: {instanceID: 12168}
     - Class: 114
-      Script: {instanceID: 12128}
+      Script: {instanceID: 12184}
     - Class: 114
-      Script: {instanceID: 12274}
+      Script: {instanceID: 12202}
     - Class: 114
-      Script: {instanceID: 12314}
+      Script: {instanceID: 12222}
     - Class: 114
-      Script: {instanceID: 12336}
+      Script: {instanceID: 12240}
     - Class: 115
       Script: {instanceID: 0}
-    - Class: 135
-      Script: {instanceID: 0}
-    - Class: 136
+    - Class: 128
       Script: {instanceID: 0}
     - Class: 157
       Script: {instanceID: 0}
@@ -288,9 +270,27 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 4bc4346a71a8df53a6b106f68ef3a190
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: CanvasScaler
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Stores.dll
+    namespaceName: UnityEngine.Purchasing
+    className: AsyncWebUtil
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Stores.dll
+    namespaceName: UnityEngine.Purchasing
+    className: MoolahStoreImpl
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Stores.dll
+    namespaceName: UnityEngine.Purchasing.Extension
+    className: UnityUtil
   - hash:
       serializedVersion: 2
       Hash: 984dcc0ba3707b7691fbdca8ff508d28
@@ -317,22 +317,16 @@ ScriptsOnlyBuild:
     className: CrossSceneController
   - hash:
       serializedVersion: 2
-      Hash: 5bd9a19c7b5f76c563418e28f48a561b
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkLobbyPlayer
+      Hash: ebd0fcfecda45cfd91320c470f790625
+    assemblyName: Assembly-CSharp-firstpass.dll
+    namespaceName: 
+    className: IAPDemoProductUI
   - hash:
       serializedVersion: 2
       Hash: e7a73f5f78ba6445195ec23b74a1ce2d
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_ScrollbarEventHandler
-  - hash:
-      serializedVersion: 2
-      Hash: 04e4a8b0447477cc4e933d9e5311188f
-    assemblyName: UnityEngine.XR.LegacyInputHelpers.dll
-    namespaceName: UnityEngine.XR.LegacyInputHelpers
-    className: ArmModel
   - hash:
       serializedVersion: 2
       Hash: 7d3ce16e6cbf6841d8db8aed5a2ccc4f
@@ -360,21 +354,15 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: fc108ce7d98c40ac0907e8ca7f500c76
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Text
   - hash:
       serializedVersion: 2
       Hash: 06a330481ec400be50745bb7faf76bd0
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Scrollbar
-  - hash:
-      serializedVersion: 2
-      Hash: eafb77726b67b7571818a7210a3ce11e
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkIdentity
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -384,27 +372,21 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: PositionAsUV1
   - hash:
       serializedVersion: 2
       Hash: abf1930d8126d0b2e00e9449129a0190
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: TouchInputModule
   - hash:
       serializedVersion: 2
       Hash: 89498a9a4a6296605faa18a2c5f758a4
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Image
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: UnityEngine.Advertisements.Editor.dll
-    namespaceName: UnityEngine.Advertisements.Editor
-    className: Placeholder
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -419,20 +401,44 @@ ScriptsOnlyBuild:
     className: TMP_InputField
   - hash:
       serializedVersion: 2
-      Hash: ad9173d3a69d99153f38ed4b62226129
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkTransform
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements
+    className: CallbackExecutor
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements.Editor
+    className: Placeholder
+  - hash:
+      serializedVersion: 2
+      Hash: cd0ecdca0166232906c6f2df9dddc3d3
+    assemblyName: Editor.dll
+    namespaceName: UnityEditor.Purchasing
+    className: ObfuscatorWindow
+  - hash:
+      serializedVersion: 2
+      Hash: cd0ecdca0166232906c6f2df9dddc3d3
+    assemblyName: Editor.dll
+    namespaceName: UnityEditor.Purchasing
+    className: ProductCatalogEditor
+  - hash:
+      serializedVersion: 2
+      Hash: cd0ecdca0166232906c6f2df9dddc3d3
+    assemblyName: Editor.dll
+    namespaceName: UnityEditor.Purchasing
+    className: RichEditorWindow
   - hash:
       serializedVersion: 2
       Hash: 7ab0e790220bdca831fdd886b339039d
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: GridLayoutGroup
   - hash:
       serializedVersion: 2
       Hash: 8aa3d6ccbcb54ee8db6c1229854adaaa
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: ContentSizeFitter
   - hash:
@@ -444,21 +450,15 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 0dbc3be398b4869a5c8d0d8481ee402c
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: LayoutElement
   - hash:
       serializedVersion: 2
       Hash: 18c222bef9ae745ce69ddde9b74337ca
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: PhysicsRaycaster
-  - hash:
-      serializedVersion: 2
-      Hash: a9f4a964a1f36a933ada10cf40431a92
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: Shop
   - hash:
       serializedVersion: 2
       Hash: 70c3d101a3dcb5aaef8bbd2ed94a4160
@@ -473,20 +473,14 @@ ScriptsOnlyBuild:
     className: AnimationTrack
   - hash:
       serializedVersion: 2
-      Hash: 3f0b469d844365c00a63de0437c9b29e
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkProximityChecker
-  - hash:
-      serializedVersion: 2
       Hash: cf9f5cf2c3145a37ac07f00e50e460f9
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: AspectRatioFitter
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: RectMask2D
   - hash:
@@ -497,32 +491,26 @@ ScriptsOnlyBuild:
     className: TMP_SubMeshUI
   - hash:
       serializedVersion: 2
-      Hash: 52bcb9c2a78bdd8d98a59e915c346e75
-    assemblyName: UnityEngine.XR.LegacyInputHelpers.dll
-    namespaceName: UnityEngine.XR.LegacyInputHelpers
-    className: TransitionArmModel
-  - hash:
-      serializedVersion: 2
       Hash: 5ab533713adae59372fb3e10a585c186
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: AnimationPlayableAsset
   - hash:
       serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp-firstpass.dll
+    namespaceName: UnityEngine.Purchasing
+    className: DemoInventory
+  - hash:
+      serializedVersion: 2
       Hash: aba7b2852ef61d175dd9602e7723d5e5
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Mask
   - hash:
       serializedVersion: 2
-      Hash: d251bf88db6c95a6b1aa0b69298da9ef
-    assemblyName: UnityEngine.SpatialTracking.dll
-    namespaceName: UnityEngine.SpatialTracking
-    className: TrackedPoseDriver
-  - hash:
-      serializedVersion: 2
       Hash: caa533b001ae39b864ba8425019e2268
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Shadow
   - hash:
@@ -552,7 +540,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: cc4274b586df3c02688bac01b88bd16c
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: EventSystem
   - hash:
@@ -588,7 +576,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 8dc90e648ac06f43bdd31ac9fa8f4579
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Selectable
   - hash:
@@ -599,16 +587,10 @@ ScriptsOnlyBuild:
     className: Benchmark01
   - hash:
       serializedVersion: 2
-      Hash: 265cf27ba050d55ff33a8acab4ded6c0
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkLobbyManager
-  - hash:
-      serializedVersion: 2
-      Hash: 5887ef1bc706b22b773d253fd443ceef
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkTransformVisualizer
+      Hash: a318a82d5abde553e75543c7b3aba918
+    assemblyName: Assembly-CSharp-firstpass.dll
+    namespaceName: AppStoresSupport
+    className: AppStoreSettings
   - hash:
       serializedVersion: 2
       Hash: 37483194313615cf6c26089a0902be12
@@ -624,7 +606,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 97ace6213ad0f149b0917a4c669c6ca3
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: ScrollRect
   - hash:
@@ -641,16 +623,16 @@ ScriptsOnlyBuild:
     className: UIController
   - hash:
       serializedVersion: 2
+      Hash: 571e47a74c7a40f2414b55ade9dd908c
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Shop
+  - hash:
+      serializedVersion: 2
       Hash: 3375c3d749f8f4cad889721b431bdc27
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: CameraController
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkCallbacks
   - hash:
       serializedVersion: 2
       Hash: e63944317d2f5958e31963668bb29158
@@ -663,12 +645,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Analytics.Editor.dll
     namespaceName: UnityEditor.Analytics
     className: AnalyticsEventTrackerEditor
-  - hash:
-      serializedVersion: 2
-      Hash: 21e871d89bbce53c038fc75ad1b7c7f3
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkManager
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -702,15 +678,33 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 516824a435828eadd660ef2f1658a48e
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Button
   - hash:
       serializedVersion: 2
       Hash: 92da9881aed190e8bb74661bcd74aa2c
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: RawImage
+  - hash:
+      serializedVersion: 2
+      Hash: cbe9b39ad540c96208a018691ff0bdfa
+    assemblyName: UDP.dll
+    namespaceName: UnityEngine.UDP
+    className: AppStoreSettings
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UDP.dll
+    namespaceName: UnityEngine.UDP
+    className: MainThreadDispatcher
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UDP.dll
+    namespaceName: UnityEngine.UDP
+    className: UdpGameManager
   - hash:
       serializedVersion: 2
       Hash: e244702e0dc05782229aa524e4d757f5
@@ -720,15 +714,9 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 5ad4aa237d47ac2bab17bacb672edf7a
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: VerticalLayoutGroup
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkStartPosition
   - hash:
       serializedVersion: 2
       Hash: 11319334e5365797f8056694f9b5dae4
@@ -738,7 +726,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 12e64d607873da15ad3f833620350d51
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: InputField
   - hash:
@@ -756,7 +744,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 5ad4aa237d47ac2bab17bacb672edf7a
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: HorizontalLayoutGroup
   - hash:
@@ -786,7 +774,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 18c222bef9ae745ce69ddde9b74337ca
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: Physics2DRaycaster
   - hash:
@@ -803,18 +791,6 @@ ScriptsOnlyBuild:
     className: TMP_TextSelector_A
   - hash:
       serializedVersion: 2
-      Hash: 318c6c13a19c9fac98135ae14889de1b
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkMigrationManager
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: UnityEngine.Advertisements.dll
-    namespaceName: UnityEngine.Advertisements
-    className: CallbackExecutor
-  - hash:
-      serializedVersion: 2
       Hash: c1933cc0a2f4ff6eb13333347497beb3
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -825,6 +801,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: SimpleScript
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityStore.dll
+    namespaceName: UnityEngine.Store
+    className: MainThreadDispatcher
   - hash:
       serializedVersion: 2
       Hash: ca1c9695bbafcb52af6a07f1bd4c4ea5
@@ -849,12 +831,6 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: TMP_TextSelector_B
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkBehaviour
   - hash:
       serializedVersion: 2
       Hash: 18a8c8a7b83941059751ce448eba3880
@@ -888,7 +864,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: ae83e830e7a90c0aff918c4c2e520825
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: GraphicRaycaster
   - hash:
@@ -959,18 +935,6 @@ ScriptsOnlyBuild:
     className: VertexZoom
   - hash:
       serializedVersion: 2
-      Hash: 1dcb82730d983b77cec736c6ef19f814
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkDiscovery
-  - hash:
-      serializedVersion: 2
-      Hash: 893dbdbfe611d62e230a686ea89f1efd
-    assemblyName: UnityEngine.XR.LegacyInputHelpers.dll
-    namespaceName: UnityEngine.XR.LegacyInputHelpers
-    className: SwingArmModel
-  - hash:
-      serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -983,16 +947,16 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: e6ae40841db498b6e673877ac45ad208
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkAnimator
-  - hash:
-      serializedVersion: 2
       Hash: e80c1450883443c68d6c2dade213536f
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: TMPro_InstructionOverlay
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: CompleteProject
+    className: IAPManager
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -1038,25 +1002,19 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: BaseInput
   - hash:
       serializedVersion: 2
       Hash: caa533b001ae39b864ba8425019e2268
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Outline
   - hash:
       serializedVersion: 2
-      Hash: e0ee4b3d4e27318934cc940a969d3d96
-    assemblyName: com.unity.multiplayer-hlapi.Runtime.dll
-    namespaceName: UnityEngine.Networking
-    className: NetworkManagerHUD
-  - hash:
-      serializedVersion: 2
       Hash: 3f52d34ea17dfc771004b80f5d492445
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: EventTrigger
   - hash:
@@ -1074,19 +1032,19 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 0852116b29df10ce3f9156850d406521
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Dropdown
   - hash:
       serializedVersion: 2
       Hash: 748dd2a2a28da4e618912da5ac45684b
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
     className: StandaloneInputModule
   - hash:
       serializedVersion: 2
       Hash: 3ab7272a8b7d3ea5a142e0c9b6aae63b
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Toggle
   - hash:
@@ -1098,7 +1056,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 85c97bcc5f84eeb0999d75902803b99d
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Slider
   - hash:
@@ -1110,7 +1068,7 @@ ScriptsOnlyBuild:
   - hash:
       serializedVersion: 2
       Hash: 0fd6822f6177297bd0eb4d83cc7a9030
-    assemblyName: Unity.ugui.dll
+    assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: ToggleGroup
   - hash:
@@ -1119,8 +1077,14 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: 27e1adbff53d2875d34aee83a87ed22d
+    assemblyName: Assembly-CSharp-firstpass.dll
+    namespaceName: 
+    className: IAPDemo
   platform: 13
   scenePathNames:
   - Assets/Sweet Boom/Scenes/Menu.unity
   - Assets/Sweet Boom/Scenes/Game.unity
-  playerPath: C:/Users/Super/Desktop/sweet boom apk
+  playerPath: C:/Users/Super/Desktop/sweet_boom_test.apk

@@ -277,7 +277,7 @@ public class EditLevels : EditorWindow {
             menuTextureRect.x = 305;
             menuTextureRect.y = 30;
             menuTextureRect.width = Screen.width - 310;
-            menuTextureRect.height = 600;
+            menuTextureRect.height = 660;
 
             logoSetRect.x = 0;
             logoSetRect.y = 0;
@@ -807,16 +807,29 @@ public class EditLevels : EditorWindow {
             adConfig.adMobID = EditorGUILayout.TextField(adConfig.adMobID);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Banner ID");
-            adConfig.adMobBannerID = EditorGUILayout.TextField(adConfig.adMobBannerID);
+            GUILayout.Label("Banner ID (Android)");
+            adConfig.adMobAndroidBannerID = EditorGUILayout.TextField(adConfig.adMobAndroidBannerID);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Interstitial ID");
-            adConfig.adMobPictureID = EditorGUILayout.TextField(adConfig.adMobPictureID);
+            GUILayout.Label("Interstitial ID (Android)");
+            adConfig.adMobAndroidPictureID = EditorGUILayout.TextField(adConfig.adMobAndroidPictureID);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Rewarded video ID");
-            adConfig.adMobRewardedID = EditorGUILayout.TextField(adConfig.adMobRewardedID);
+            GUILayout.Label("Rewarded video ID (Android)");
+            adConfig.adMobAndroidRewardedID = EditorGUILayout.TextField(adConfig.adMobAndroidRewardedID);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Banner ID (IOS)");
+            adConfig.adMobIOSBannerID = EditorGUILayout.TextField(adConfig.adMobIOSBannerID);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Interstitial ID (IOS)");
+            adConfig.adMobIOSPictureID = EditorGUILayout.TextField(adConfig.adMobIOSPictureID);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Rewarded video ID (IOS)");
+            adConfig.adMobIOSRewardedID = EditorGUILayout.TextField(adConfig.adMobIOSRewardedID);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
             EditorGUI.EndDisabledGroup();

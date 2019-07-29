@@ -85,7 +85,6 @@ public class LevelDatabase : Editor {
         {
             Debug.LogError($"Sweet Boom editor initialization failed. {e.ToString()}");
             data.settings.adConfig = Advert.AdConfig.SetDefaultConfig();
-            Debug.Log(data.settings.adConfig.adMobBannerID);
         }
         
     }
@@ -96,7 +95,9 @@ public class LevelDatabase : Editor {
     /// <returns></returns>
     public static Level GetSave(int lvlNum)
     {
-        foreach (Level lvl in data.levels) if (lvl.levelNum == lvlNum) { return lvl; }
+        foreach (Level lvl in data.levels)
+            if (lvl.levelNum == lvlNum)
+                return lvl;
         return null;
     }
     /// <summary>
@@ -110,7 +111,7 @@ public class LevelDatabase : Editor {
 
         if (data != null && data.levels != null)
         {
-            for (int i = 0; i < data.levels.Count; i++)
+            for (int i = 0; i < data.levels.Count; ++i)
             {
                 if (data.levels[i].levelNum == saveLevelNum)
                 {

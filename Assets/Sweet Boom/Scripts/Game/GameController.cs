@@ -967,7 +967,7 @@ public class GameController : MonoBehaviour, IGameController
     }
     public void OnGameWin()
     {
-        Advert.ShowAdvertisement(Advert.AdConfig.ShowPlace.afterWin);
+        Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterWin);
         if(!gameInfo.isLevelWin)
         {
             StartCoroutine(UIController.GetComponent<UIController>().Loop(() => {
@@ -994,7 +994,7 @@ public class GameController : MonoBehaviour, IGameController
     }
     public void OnGameOver(string arg)
     {
-        Advert.ShowAdvertisement(Advert.AdConfig.ShowPlace.afterLose);
+        Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterLose);
         if (!gameInfo.isLevelLose)
         {
             gameInfo.isLevelLose = true;

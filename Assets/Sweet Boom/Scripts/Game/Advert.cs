@@ -17,6 +17,7 @@ public static class Advert
     private static BannerView banner;
     private static InterstitialAd interstitialAd;
     private static RewardBasedVideoAd rewaredAd;
+    private static AdRequest request;
     private static bool isRewardedVideoEnabled_;
     public static CurrentPlatform platform { get; set; }
     public static event Action onRewardedVideoComplete, onRewardedVideoSkipped, onRewardedVideoFailed;
@@ -26,7 +27,12 @@ public static class Advert
         get
         {
             // TODO: create rewarded video interval
-            return Advertisement.IsReady("rewardedVideo");
+            if (adConfig.rewardedVideoOpt.serv == AdServices.unityAds)
+                return Advertisement.IsReady("rewardedVideo");
+            else if (adConfig.rewardedVideoOpt.serv == AdServices.adMob)
+                return rewaredAd.IsLoaded();
+            else
+                return rewaredAd.IsLoaded() || Advertisement.IsReady("rewardedVideo");
         }
         set
         {
@@ -43,6 +49,11 @@ public static class Advert
 #else
         platform = CurrentPlatform.undefined;
 #endif
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            Save.TimerDelegeate(() => { InitAdvertisement(); }, 15);
+            return;
+        }
         if (!isInit)
         {
             onRewardedVideoComplete += Shop.RewardedVideoSucceeded;
@@ -54,7 +65,8 @@ public static class Advert
             if (adConfig.adMobEnable)
             {
                 MobileAds.Initialize(Save.gameData.settings.adConfig.adMobID);
-                if (adConfig.interstitial[0].enabled || adConfig.interstitial[1].enabled || adConfig.interstitial[2].enabled)
+                if (adConfig.interstitial[0].serv == AdServices.adMob || adConfig.interstitial[1].serv == AdServices.adMob 
+                    || adConfig.interstitial[2].serv == AdServices.adMob)
                 {
                     if (platform == CurrentPlatform.android)
                         interstitialAd = new InterstitialAd(adConfig.adMobAndroidPictureID);
@@ -67,55 +79,68 @@ public static class Advert
                         banner = new BannerView(adConfig.adMobAndroidBannerID, AdSize.Banner, AdPosition.Bottom);
                     else if (platform == CurrentPlatform.ios)
                         banner = new BannerView(adConfig.adMobIOSBannerID, AdSize.Banner, AdPosition.Bottom);
+                    AdRequest request = new AdRequest.Builder().Build();
+                    banner.LoadAd(request);
                 }
                 if (adConfig.rewardedVideoOpt.enabled)
                 {
                     rewaredAd = RewardBasedVideoAd.Instance;
                     AdRequest request = new AdRequest.Builder().Build();
-                    if (platform == CurrentPlatform.android)
-                    {
-                        // TODO: Вознаграждаемая реклама AdMob
-                        rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobAndroidRewardedID);
-                    }
-                        
+                    rewaredAd.OnAdRewarded += AdMobRewardedVideoComplete;
                 }
             }
             isInit = true;
         }
     }
-    public static void RefreshAdv()
+    public static void RefreshAdv(AdServices serv)
     {
-        try
+        if (adConfig.adMobEnable && (serv == AdServices.adMob || serv == AdServices.both))
         {
-            if(adConfig.adMobEnable)
+            /*
+            if (adConfig.banner.enabled)
             {
-                if(adConfig.banner.enabled)
+                AdRequest req = new AdRequest.Builder().Build();
+                banner.LoadAd(req);
+            }
+            */
+            if ((adConfig.interstitial[0].enabled || adConfig.interstitial[1].enabled || adConfig.interstitial[2].enabled) &&
+                (adConfig.interstitial[0].serv == AdServices.adMob || adConfig.interstitial[1].serv == AdServices.adMob ||
+                        adConfig.interstitial[2].serv == AdServices.adMob))
+            {
+                AdRequest req = new AdRequest.Builder().Build();
+                interstitialAd.LoadAd(req);
+            }
+            if (adConfig.rewardedVideoOpt.enabled)
+            {
+                if (adConfig.rewardedVideoOpt.serv == AdServices.adMob)
                 {
-                    AdRequest req = new AdRequest.Builder().Build();
-                    banner.LoadAd(req);
+                    if (platform == CurrentPlatform.android)
+                        rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobAndroidRewardedID);
+                    else if (platform == CurrentPlatform.ios)
+                        rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobIOSRewardedID);
+                    else
+                        Debug.Log("[Sweet Boom Editor] Undefined platform (AdMob)");
                 }
-                if(adConfig.interstitial[0].enabled || adConfig.interstitial[1].enabled || adConfig.interstitial[2].enabled)
+                else if (adConfig.rewardedVideoOpt.serv == AdServices.unityAds)
                 {
-                    AdRequest req = new AdRequest.Builder().Build();
-                    interstitialAd.LoadAd(req);
+
                 }
             }
         }
-        catch
+        else if (adConfig.unityAdsEnable && (serv == AdServices.unityAds || serv == AdServices.both))
         {
-            Debug.Log("[Sweet Boom Ads] Error while refreshing.");
+            // TODO: Unity ADs refresh...
         }
     }
     /// <summary>
     /// 
     /// </summary>
     /// <param name="place"></param>
-    public static IEnumerable ShowAdvertisement(AdConfig.ShowPlace place)
+    public static void ShowAdvertisementInterstitial(AdConfig.ShowPlace place)
     {
         if (isInit)
         {
             Debug.Log("[Sweet Boom Editor] Advertisement shows");
-            
             foreach (var item in adConfig.interstitial)
             {
                 if (item.showPlace == place)
@@ -123,18 +148,13 @@ public static class Advert
                     switch(item.serv)
                     {
                         case AdServices.unityAds:
-                            try
-                            {
-                                if (Advertisement.isSupported) Advertisement.Show();
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.Log($"[Sweet Boom Ads] Error while trying to display unity ads ({ex.ToString()})");
-                            }
+                            if (Advertisement.isSupported)
+                                Advertisement.Show();
                             break;
                         case AdServices.adMob:
-                            // Admob code...
-                            if (interstitialAd.IsLoaded()) interstitialAd.Show();
+                            if (interstitialAd.IsLoaded())
+                                interstitialAd.Show();
+                            RefreshAdv(AdServices.adMob);
                             break;
                     }
                 }
@@ -143,12 +163,13 @@ public static class Advert
         else
         {
             Debug.Log("[Sweet Boom Editor] Advertisement not initialized");
-            yield return null;
         }
     }
     
     public static void ShowRewardedVideo()
     {
+        if (!isInit)
+            return;
         switch (Save.gameData.settings.adConfig.rewardedVideoOpt.serv)
         {
             case AdServices.unityAds:
@@ -156,21 +177,46 @@ public static class Advert
                     Advertisement.Show("rewardedVideo", new ShowOptions() { resultCallback = RewardedVideoResult });
                 break;
             case AdServices.adMob:
-
+                if (platform == CurrentPlatform.android)
+                    rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobAndroidRewardedID);
+                else if (platform == CurrentPlatform.ios)
+                    rewaredAd.LoadAd(request, Save.gameData.settings.adConfig.adMobIOSRewardedID);
+                else
+                    Debug.Log("[Sweet Boom Editor] Undefined platform (AdMob)");
                 break;
             case AdServices.both:
+                if (UnityEngine.Random.Range(1, 2) == 1)
+                {
+                    if (Advertisement.IsReady())
+                        Advertisement.Show("rewardedVideo", new ShowOptions() { resultCallback = RewardedVideoResult });
+                    else if (rewaredAd.IsLoaded())
+                        rewaredAd.Show();
+                }
+                else
+                {
+                    if (rewaredAd.IsLoaded())
+                        rewaredAd.Show();
+                    else if (Advertisement.IsReady())
+                        Advertisement.Show("rewardedVideo", new ShowOptions() { resultCallback = RewardedVideoResult });
+                }
                 break;
         }
-        
     }
 
     public static void RewardedVideoResult(ShowResult result)
     {
         if (result == ShowResult.Finished)
         {
-            Debug.Log("[Sweet Boom Editor] Rewarded video complete!");
+            Debug.Log("[Sweet Boom Editor] Rewarded video complete! (Unity Ads)");
             onRewardedVideoComplete();
         }
+    }
+
+    public static void AdMobRewardedVideoComplete(object sender, EventArgs args)
+    {
+        Debug.Log("[Sweet Boom Editor] Rewarded video complete (AdMob)");
+        onRewardedVideoComplete();
+        RefreshAdv(AdServices.adMob);
     }
 
     public static void CleanMemory()

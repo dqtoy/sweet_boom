@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#undef DEBUG
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +17,22 @@ public static class Save {
     
     public static GameSave saveData { get; set; } // player progress
     public static GameData gameData { get; private set; } // levels data
-    public static ConfigurationSettings configuration { get; set; }
+    public static ConfigurationSettings configuration
+    {
+        get
+        {
+            return gameData.settings;
+        }
+        set
+        {
+            gameData.settings = value;
+        }
+    }
     static bool d = true;
     public static SoundController sound;
     private static string gameDataPath = "/gamedata.txt", saveFileName = "/savedata.txt";
     private static string fullGameInfoFilePath = $"{Application.streamingAssetsPath}{gameDataPath}", userDataSaveDirectory = $"{Application.streamingAssetsPath}{saveFileName}";
+    public static Advert.CurrentPlatform curPlatform { get; set; }
 
     /// <summary>
     /// <para>[EN] Main initialization of the game </para>
@@ -27,6 +40,15 @@ public static class Save {
     /// </summary>
     public static void Init()
     {
+#if UNITY_ANDROID && !DEBUG
+        curPlatform = Advert.CurrentPlatform.android;
+        Debug.Log("Android...");
+#elif UNITY_IOS
+        curPlatform = Advert.CurrentPlatform.ios;
+#elif DEBUG || (!UNITY_ANDROID && !UNITY_IOS)
+        curPlatform = Advert.CurrentPlatform.undefined;
+        Debug.Log("[Sweet Boom Editor] Undefined platform");
+#endif
         Application.quitting += SaveAllUserData;
 
         gameData = new GameData();
@@ -42,52 +64,62 @@ public static class Save {
     /// <returns></returns>
     public static GameData InitGameData()
     {
-        try
+        string fileData = "";
+        if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
+            Debug.Log("[Sweet Boom Editor] Undefined or IOS");
             if (!File.Exists($"{fullGameInfoFilePath}"))
             {
                 Debug.Log("Open Dudle/Level Editor " +
                 "to start making levels.");
-                gameData = new GameData();
+                gameData = GameData.SetDefualt();
                 return gameData;
             }
             else
             {
-                string fileData = "";
                 string[] fileDataAr = File.ReadAllLines(fullGameInfoFilePath);
                 foreach (var line in fileDataAr) fileData += line;
-                gameData = new GameData();
-                gameData = JsonConvert.DeserializeObject<GameData>(fileData);
-               
-                configuration = gameData.settings;
-
-                if (configuration.sortingLevelsInMenu) // Level sorting
-                {
-                    for (int i = 0; i < gameData.levels.Count - 1; i++)
-                    {
-                        int min = int.MaxValue;
-                        Level minLvl = new Level();
-                        for (int j = i; j < gameData.levels.Count; j++)
-                        {
-                            if (gameData.levels[j].levelNum < min)
-                            {
-                                min = gameData.levels[j].levelNum;
-                                Level l = gameData.levels[i];
-                                gameData.levels[i] = gameData.levels[j];
-                                gameData.levels[j] = l;
-                            }
-                        }
-                    }
-                }
-                return gameData;
             }
         }
-        catch (Exception e)
+        else if (curPlatform == Advert.CurrentPlatform.android)
         {
-            Debug.Log("[Sweet Boom Editor] Game data is damaged. Error type: " + e.ToString());
-            gameData = new GameData();
-            return gameData;
+            Debug.Log("[Sweet Boom Editor] Android");
+            try
+            {
+                string path = Path.Combine(Application.streamingAssetsPath + "/", "gamedata.txt");
+                WWW reader = new WWW(path);
+                while (!reader.isDone)
+                    ;
+                fileData = reader.text;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("[Sweet Boom Editor] Exception while loading data");
+            }
         }
+        gameData = new GameData();
+        gameData = JsonConvert.DeserializeObject<GameData>(fileData);
+        gameData = gameData ?? GameData.SetDefualt();
+        configuration = gameData.settings ?? ConfigurationSettings.SetDefaultConfig();
+        if (configuration.sortingLevelsInMenu) // Level sorting
+        {
+            for (int i = 0; i < gameData.levels.Count - 1; i++)
+            {
+                int min = int.MaxValue;
+                Level minLvl = new Level();
+                for (int j = i; j < gameData.levels.Count; j++)
+                {
+                    if (gameData.levels[j].levelNum < min)
+                    {
+                        min = gameData.levels[j].levelNum;
+                        Level l = gameData.levels[i];
+                        gameData.levels[i] = gameData.levels[j];
+                        gameData.levels[j] = l;
+                    }
+                }
+            }
+        }
+        return gameData;
     }
     /// <summary>
     /// <para>[EN] Return a random int number between 'from' [inclusive] and 'to' [inclusive]</para>
@@ -104,6 +136,18 @@ public static class Save {
             int result = UnityEngine.Random.Range(1, 101);
             for (int i = 0; i < ((to - from) + 1); i++) if (result > i * dist && result <= (i + 1) * dist) return from + i;
         }
+    }
+    /// <summary>
+    /// [EN] Invokes the delegate after the specified time has elapsed
+    /// [RU] Вызывает переданный делегат по истечению указанного времени
+    /// </summary>
+    /// <param name="action">Invoked delegate</param>
+    /// <param name="time">Time (in seconds)</param>
+    /// <returns></returns>
+    public static IEnumerator TimerDelegeate(Action action, int time)
+    {
+        yield return new WaitForSeconds(time * 1000);
+        action?.Invoke();
     }
     [Serializable]
     public class GameSave
@@ -129,7 +173,6 @@ public static class Save {
         /// <param name="num">[EN] number of completed level</param>
         public void UnlockNewLevel(int num, int score, int stars)
         {
-            Debug.Log("unl");
             for(int i = 0; i < saveData.levels.Count; i++)
             {
                 if (saveData.levels[i].levelNum == num)
@@ -141,7 +184,6 @@ public static class Save {
                     }
                     else if (saveData.levels[i].status == LevelStatus.enabled)
                     {
-                        Debug.Log($"Completed: {num}, {saveData.levels.Count}");
                         saveData.levels[i].status = LevelStatus.completed;
                         saveData.levels[i].score = score;
                         saveData.levels[i].stars = stars;
@@ -161,6 +203,18 @@ public static class Save {
         }
         public void LevelsCollisionRemove()
         {
+            if (saveData.levels.Count > 0)
+            {
+                for (int i = 0; i < saveData.levels.Count; ++i)
+                {
+                    if (saveData.levels[i].levelNum == 1 && saveData.levels[i].status == LevelStatus.locked)
+                    {
+                        saveData.levels[i].status = LevelStatus.enabled;
+                        SaveAllUserData();
+                        return;
+                    }
+                }
+            }
             for(int i = 0; i < saveData.levels.Count; i++)
             {
                 if(saveData.levels[i].status == LevelStatus.locked && i - 1 >= 0 && saveData.levels[i - 1].status == LevelStatus.completed)
@@ -239,7 +293,8 @@ public static class Save {
             saveData.levels[i].levelNum = gameData.levels[i].levelNum;
             saveData.levels[i].status = LevelStatus.locked;
         }
-        saveData.levels[0].status = LevelStatus.enabled;
+        if (saveData.levels.Count > 0)
+            saveData.levels[0].status = LevelStatus.enabled;
         SaveAllUserData();
     }
     public static void InitSavedData()
@@ -358,6 +413,16 @@ public static class Save {
             this.levelCount = 0;
             this.settings = null;
         }
+
+        public static GameData SetDefualt()
+        {
+            return new GameData()
+            {
+                levelCount = 0,
+                levels = new List<Level>(),
+                settings = ConfigurationSettings.SetDefaultConfig()
+            };
+        }
     }
 
     [Serializable]
@@ -377,5 +442,45 @@ public static class Save {
         public float distance, size;
         public Advert.AdConfig adConfig;
         public List<Shop.CoinShopItem> shopItems;
+
+        public static ConfigurationSettings SetDefaultConfig()
+        {
+            return new ConfigurationSettings()
+            {
+                sortingLevelsInMenu = true,
+                randomizePositionOfIcons = false,
+                distance = 130,
+                size = 0.82f,
+                fps = false,
+                adConfig = Advert.AdConfig.SetDefaultConfig(),
+                shopItems = new List<Shop.CoinShopItem>()
+                {
+                    new Shop.CoinShopItem()
+                    {
+                        coinRew = 200,
+                        price = "0.50",
+                        unityIAPId = "test1",
+                        appStoreId = "appStoreTest1",
+                        googlePlayId = "googlePlayTest1"
+                    },
+                    new Shop.CoinShopItem()
+                    {
+                        coinRew = 500,
+                        price = "0.99",
+                        unityIAPId = "test2",
+                        appStoreId = "appStoreTest2",
+                        googlePlayId = "googlePlayTest2"
+                    },
+                    new Shop.CoinShopItem()
+                    {
+                        coinRew = 900,
+                        price = "1.50",
+                        unityIAPId = "test3",
+                        appStoreId = "appStoreTest3",
+                        googlePlayId = "googlePlayTest3"
+                    }
+                }
+            };
+        }
     }
 }
