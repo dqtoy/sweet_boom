@@ -12,8 +12,8 @@ public static class SceneConnect {
         Save.SaveAllUserData();
         try
         {
-            var gameData = Save.InitGameData();
-            foreach (var level in gameData.levels)
+            //var gameData = Save.InitGameData();
+            foreach (var level in Save.gameData.levels)
             {
                 if (level.levelNum == lvl)
                     returnData = new LevelData(level, lvl);

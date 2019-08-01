@@ -125,7 +125,7 @@ public class GameController : MonoBehaviour, IGameController
             targetScore = levelData.levelInfo.maxScore,
             maxMoves = levelData.levelInfo.goals,
             currentMoves = levelData.levelInfo.goals,
-            hasStar = new bool[3] { false, false, false }
+            hasStar = new bool[2] { false, false }
         };
         rayTouch = new Ray(); // Main ray 
         rayTouch.direction = Vector3.forward * 100;
@@ -984,8 +984,8 @@ public class GameController : MonoBehaviour, IGameController
                 {
                     gameInfo.isLevelWin = true;
                     StartCoroutine(UIController.GetComponent<UIController>().ShowMessage(new string[2] { "You win!", $"Your score: {gameInfo.currentScore}" }, true, global::UIController.ShowUI.gameWin, 3));
-                    int starCount = 0;
-                    for (int i = 0; i < 3; i++) if (gameInfo.hasStar[i] == true) starCount++;
+                    int starCount = 1;
+                    for (int i = 0; i < 2; i++) if (gameInfo.hasStar[i] == true) starCount++;
                     Save.saveData.UnlockNewLevel(levelData.levelNum, gameInfo.currentScore, starCount);
                     return true;
                 }
@@ -1076,7 +1076,7 @@ public class GameController : MonoBehaviour, IGameController
                     {
                         if(fieldBlock.x == i && fieldBlock.y == y)
                         {
-                            if (fieldBlock.z != (int)Save.BlockID.empty && fieldBlock.z != (int)Save.BlockID.nil)
+                            if (fieldBlock.z != (int)Save.GameDataBlockID.empty && fieldBlock.z != (int)Save.GameDataBlockID.nil)
                             {
                                 redCrosses[i, y] = new BoosterAnimationItem(redCrossPrefab, true);
                                 redCrosses[i, y].instance.transform.parent = playFieldParent.transform;
@@ -1095,9 +1095,14 @@ public class GameController : MonoBehaviour, IGameController
                                 blocks[i, y].AddComponent(typeof(FieldObject));
                                 blocks[i, y].GetComponent<FieldObject>().column = y;
                                 blocks[i, y].GetComponent<FieldObject>().row = i;
-                                if (fieldBlock.z == (int)Save.BlockID.candy || fieldBlock.z == (int)Save.BlockID.ice)
+                                if (fieldBlock.z == (int)Save.GameDataBlockID.candy || fieldBlock.z == (int)Save.GameDataBlockID.ice ||
+                                    (fieldBlock.z >= (int)Save.GameDataBlockID.red && fieldBlock.z <= (int)Save.GameDataBlockID.purple))
                                 {
-                                    int ran = Save.Randomizer(0, itemData.candies.Length - 1);
+                                    int ran;
+                                    if (fieldBlock.z == (int)Save.GameDataBlockID.candy || fieldBlock.z == (int)Save.GameDataBlockID.ice)
+                                        ran = Save.Randomizer(0, itemData.candies.Length - 1);
+                                    else
+                                        ran = fieldBlock.z - 5;
                                     sweets[i, y].cell = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
                                     sweets[i, y].blockID = Save.BlockID.candy;
                                     sweets[i, y].candyID = (Save.CandyType)ran;
@@ -1109,14 +1114,14 @@ public class GameController : MonoBehaviour, IGameController
                                     sweets[i, y].cell.GetComponent<FieldObject>().candyType = sweets[i, y].candyID;
                                     sweets[i, y].cell.GetComponent<SpriteRenderer>().sprite = itemData.candies[ran].itemSprite;
                                     sweets[i, y].cell.transform.parent = playFieldParent.transform;
-                                    
+
                                     sweets[i, y].cell.GetComponent<BoxCollider>().size = new Vector2(blockSize * sweets[i, y].cell.GetComponent<SpriteRenderer>().sprite.bounds.size.x * 1.7f, blockSize * sweets[i, y].cell.GetComponent<SpriteRenderer>().sprite.bounds.size.x * 1.7f);
                                     sweets[i, y].cell.transform.position = new Vector3(block.transform.position.x, block.transform.position.y, block.transform.position.z - 5f);
                                     sweets[i, y].cell.transform.localScale = new Vector3(candySize[ran] * 0.9f, candySize[ran] * 0.9f, candySize[ran] * 0.9f);
                                     sweets[i, y].cell.gameObject.name = $"candy[{i},{y}]";
                                     sweets[i, y].cell.GetComponent<SpriteRenderer>().maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
 
-                                    FieldCell.particle[i, y] = Instantiate(candyCrushParticle.gameObject, 
+                                    FieldCell.particle[i, y] = Instantiate(candyCrushParticle.gameObject,
                                         new Vector3(sweets[i, y].cell.transform.position.x, sweets[i, y].cell.transform.position.y, sweets[i, y].cell.transform.position.z - 2), Quaternion.identity).GetComponent<ParticleSystem>();
                                     FieldCell.particle[i, y].transform.parent = playFieldParent.transform;
                                     FieldCell.particle[i, y].textureSheetAnimation.RemoveSprite(0);
@@ -1415,8 +1420,8 @@ public class GameController : MonoBehaviour, IGameController
         public int currentMoves;
         public int targetScore;
         public int currentScore;
-        public float[] targetScoreStar = new float[3];
-        public bool[] hasStar = new bool[3];
+        public float[] targetScoreStar = new float[2];
+        public bool[] hasStar = new bool[2];
         public bool isLevelAlreadyComplete;
         public bool isLevelWin, isLevelLose;
         public LevelStatus levelStatus;

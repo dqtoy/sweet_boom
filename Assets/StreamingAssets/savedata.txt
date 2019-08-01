@@ -1,0 +1,1 @@
+{"levels":[{"levelNum":2,"status":2,"stars":3,"score":495},{"levelNum":1,"status":1,"stars":0,"score":0}],"coins_":2200,"energy":3,"boostersCount":[0,0,0],"bombBooster":0,"searchBooster":0,"multiCandyBooster":0}

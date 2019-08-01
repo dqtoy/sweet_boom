@@ -28,6 +28,7 @@ public class LevelManager : MonoBehaviour {
     [SerializeField] private GameObject alertBox, shopManager;
     [SerializeField] private GameObject cloudPrefab;
     [SerializeField] private GameObject levelFieldGameobject;
+    [SerializeField] public TextMeshProUGUI debugGUI;
     //public static Save.GameData gameData; // MAIN GAME DATA
     public static Save.ConfigurationSettings configuration;
     static bool isInit;

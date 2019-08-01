@@ -209,9 +209,9 @@ public class UIController : MonoBehaviour
     }
     public IEnumerator StarsShow(int starCount)
     {
-        for(int i = 0; i < starCount; i++)
+        for (int i = 0; i < starCount; i++)
         {
-            if (GameController.gameInfo.hasStar[i])
+            if (i == 0 || GameController.gameInfo.hasStar[i - 1])
             {
                 stars[i].gameObject.SetActive(true);
                 SoundController.PlaySound(SoundController.SoundType.clickOpen);
@@ -263,7 +263,7 @@ public class UIController : MonoBehaviour
         curTargetPer = Mathf.InverseLerp(0, defaultMaxScore, score);
         StartCoroutine(MoveSlider());
 
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 2; i++)
         {
             if (GameController.gameInfo.hasStar[i] != true && score > GameController.levelData.levelInfo.starScore[i])
             {
@@ -280,7 +280,7 @@ public class UIController : MonoBehaviour
         for (int i = 0; i < headerStars.Length; i++) headerStars_enabled[i] = headerStars[i].transform.Find(starGameobjectName).gameObject;
 
         headerProgressSlider = 0;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             headerStars_enabled[i].gameObject.SetActive(false);
             float p = Mathf.InverseLerp(0, GameController.levelData.levelInfo.maxScore, GameController.levelData.levelInfo.starScore[i]);

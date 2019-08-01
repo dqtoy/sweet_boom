@@ -6,7 +6,6 @@ using GoogleMobileAds.Api;
 using System.IO;
 using System;
 
-
 #pragma warning disable 168
 
 public static class Advert

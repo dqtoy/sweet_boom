@@ -12,6 +12,8 @@ public class Menu : MonoBehaviour {
     [Header("Choose amount of sectors")]
     [SerializeField]
     private Levels[] levelsZones;
+    [Header("Speed of fading")] [SerializeField] private float fadingSpeed;
+    private static float fadingSpeed_;
 
     public GameObject settingsPanel, fader;
     private static GameObject faderS;
@@ -55,6 +57,7 @@ public class Menu : MonoBehaviour {
     private void Start()
     {
         faderS = fader;
+        fadingSpeed_ = fadingSpeed;
         StartCoroutine(Fader(null, FaderFunctions.fromBlack));
     }
     private void Update()
@@ -145,13 +148,13 @@ public class Menu : MonoBehaviour {
             faderS.gameObject.SetActive(true);
             while (faderS.GetComponent<Image>().color.a < 1)
             {
-                faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a + 0.05f);
+                faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a + fadingSpeed_ * Time.deltaTime);
                 yield return new WaitForSeconds(0.0001f * Time.deltaTime);
             }
             function?.Invoke();
             while (faderS.GetComponent<Image>().color.a > 0)
             {
-                faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a - 0.05f);
+                faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a - fadingSpeed_ * Time.deltaTime);
                 yield return new WaitForSeconds(0.0001f * Time.deltaTime);
             }
             faderS.gameObject.SetActive(false);
@@ -162,7 +165,7 @@ public class Menu : MonoBehaviour {
                 faderS.GetComponent<Image>().color = new Color(0, 0, 0, 0);
                 while (faderS.GetComponent<Image>().color.a < 1)
                 {
-                    faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a + 0.05f);
+                    faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a + fadingSpeed_ * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 function?.Invoke();
@@ -172,7 +175,7 @@ public class Menu : MonoBehaviour {
                 faderS.GetComponent<Image>().color = new Color(0, 0, 0, 1);
                 while (faderS.GetComponent<Image>().color.a > 0)
                 {
-                    faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a - 0.05f);
+                    faderS.GetComponent<Image>().color = new Color(0, 0, 0, faderS.GetComponent<Image>().color.a - fadingSpeed_ * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 function?.Invoke();

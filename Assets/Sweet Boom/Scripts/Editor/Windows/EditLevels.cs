@@ -15,13 +15,13 @@ public class EditLevels : EditorWindow {
 
     public static EditLevels editLevelsWindow;
     public static Texture2D mainTexture, mainTextureRight, logo, playField, leftTexture, warning, headerTexture, logo_menu, logo_set, consoleTexture;
-    public static Texture2D candy_circle_green, candy_orange, candy_oval_blue, candy_star_red, candy_triangle_yellow, ice, rock, empty, eraser, candies, fill, fill_gr;
+    public static Texture2D candy_circle_green, candy_orange, candy_oval_blue, candy_star_red, candy_triangle_yellow, candy_cube_purple, ice, rock, empty, eraser, candies, fill, fill_gr;
     static Texture2D selBrush, activeFill;
     static Rect mainTextureRect, mainTextureRightRect, playFieldRect, logoRect, leftTextureRect, headerRect, logoMenuRect, logoSetRect, selectColorRect, consoleRect;
     static Vector2 scrollLevelEditor, scrollIAP;
     public static int width, height;
     public static int updWidth, updHeight, greenAm, blueAm, orangeAm, redAm, yellowAm, purpleAm, currentLvlNum, maxGoals, maxScore, candyReward, goalReward;
-    public static int[] starTargetScore = new int[3];
+    public static int[] starTargetScore = new int[2];
     private bool isDataEx;
     public static Texture2D[,] field;
     public static bool cn_gr = false, cn_rd = false, cn_ye = false, cn_bl = false, cn_or = false, cn_prpl, fill_en = false;
@@ -56,10 +56,16 @@ public class EditLevels : EditorWindow {
     public enum BlockID
     {
         nil = 0,
-        empty = 1,
-        candy = 2,
-        ice = 3,
-        block = 4
+        empty,
+        candy,
+        ice,
+        block,
+        red,
+        green,
+        blue,
+        yellow,
+        orange,
+        purple
     }
     public enum CandyType
     {
@@ -166,6 +172,7 @@ public class EditLevels : EditorWindow {
         candy_oval_blue = Resources.Load<Texture2D>("candy_oval_blue");
         candy_star_red = Resources.Load<Texture2D>("candy_star_red");
         candy_triangle_yellow = Resources.Load<Texture2D>("candy_triangle_yellow");
+        candy_cube_purple = Resources.Load<Texture2D>("candy_cube_purple");
         ice = Resources.Load<Texture2D>("ice");
         rock = Resources.Load<Texture2D>("rock");
         empty = Resources.Load<Texture2D>("empty");
@@ -222,7 +229,7 @@ public class EditLevels : EditorWindow {
             leftTextureRect.x = 5;
             leftTextureRect.y = 150;
             leftTextureRect.width = Screen.width / 2 - 10;
-            leftTextureRect.height = 260;
+            leftTextureRect.height = 280;
             leftTexture.Apply();
 
             logoRect.x = 0;
@@ -237,9 +244,9 @@ public class EditLevels : EditorWindow {
             consoleTexture.Apply();
 
             playFieldRect.x = 10;
-            playFieldRect.y = 400;
+            playFieldRect.y = 417;
             playFieldRect.width = Screen.width - playFieldRect.x * 2;
-            playFieldRect.height = 400;
+            playFieldRect.height = 383;
 
             consoleRect.x = Screen.width / 2 + 5;
             consoleRect.y = 340;
@@ -327,6 +334,12 @@ public class EditLevels : EditorWindow {
                     case "ice": selBlockID = (int)BlockID.ice; break;
                     case "rock": selBlockID = (int)BlockID.block; break;
                     case "empty": selBlockID = (int)BlockID.empty; break;
+                    case "candy_circle_green": selBlockID = (int)BlockID.green; break;
+                    case "candy_orange": selBlockID = (int)BlockID.orange; break;
+                    case "candy_oval_blue": selBlockID = (int)BlockID.blue; break;
+                    case "candy_star_red": selBlockID = (int)BlockID.red; break;
+                    case "candy_triangle_yellow": selBlockID = (int)BlockID.yellow; break;
+                    case "candy_cube_purple": selBlockID = (int)BlockID.purple; break;
                 }
             }
             else selBlockID = (int)BlockID.nil;
@@ -614,28 +627,40 @@ public class EditLevels : EditorWindow {
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Score to reach 1 star: ");
+            EditorGUILayout.LabelField("Score to reach 2 stars: ");
             starTargetScore[0] = EditorGUILayout.IntField(starTargetScore[0]);
             if (starTargetScore[0] >= maxScore) starTargetScore[0] = 0;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Score to reach 2 stars: ");
+            EditorGUILayout.LabelField("Score to reach 3 stars: ");
             starTargetScore[1] = EditorGUILayout.IntField(starTargetScore[1]);
             if (starTargetScore[1] >= maxScore) starTargetScore[1] = 0;
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Score to reach 3 stars: ");
-            starTargetScore[2] = EditorGUILayout.IntField(starTargetScore[2]);
-            if (starTargetScore[2] >= maxScore) starTargetScore[2] = 0;
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
 
-            
-            //GUILayout.Label("Brushes:"); // Select brush
+            GUILayout.BeginVertical("box");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(candies, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candies;
+            if (GUILayout.Button(ice, GUILayout.Width(40), GUILayout.Height(40))) selBrush = ice;
+            if (GUILayout.Button(rock, GUILayout.Width(40), GUILayout.Height(40))) selBrush = rock;
+            if (GUILayout.Button(empty, GUILayout.Width(40), GUILayout.Height(40))) selBrush = empty;
+            GUILayout.Label(" ");
+            if (GUILayout.Button(eraser, GUILayout.Width(40), GUILayout.Height(40))) selBrush = eraser;
+            if (GUILayout.Button(activeFill, GUILayout.Width(40), GUILayout.Height(40))) fill_en = !fill_en;
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(candy_star_red, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_star_red;
+            if (GUILayout.Button(candy_circle_green, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_circle_green;
+            if (GUILayout.Button(candy_oval_blue, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_oval_blue;
+            if (GUILayout.Button(candy_triangle_yellow, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_triangle_yellow;
+            if (GUILayout.Button(candy_orange, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_orange;
+            if (GUILayout.Button(candy_cube_purple, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_cube_purple;
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+            /*
             GUILayout.BeginHorizontal("box");
             if (GUILayout.Button(candies, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candies;
             if (GUILayout.Button(ice, GUILayout.Width(40), GUILayout.Height(40))) selBrush = ice;
@@ -645,6 +670,7 @@ public class EditLevels : EditorWindow {
             if (GUILayout.Button(eraser, GUILayout.Width(40), GUILayout.Height(40))) selBrush = eraser;
             if (GUILayout.Button(activeFill, GUILayout.Width(40), GUILayout.Height(40))) fill_en = !fill_en;
             GUILayout.EndHorizontal();
+            */
             GUILayout.EndArea();
         }
         #endregion
@@ -1045,6 +1071,12 @@ public class EditLevels : EditorWindow {
                     case (int)BlockID.empty: field[i, y] = empty; break;
                     case (int)BlockID.candy: field[i, y] = candies; break;
                     case (int)BlockID.block: field[i, y] = rock; break;
+                    case (int)BlockID.red: field[i, y] = candy_star_red; break;
+                    case (int)BlockID.green: field[i, y] = candy_circle_green; break;
+                    case (int)BlockID.blue: field[i, y] = candy_oval_blue; break;
+                    case (int)BlockID.yellow: field[i, y] = candy_triangle_yellow; break;
+                    case (int)BlockID.orange: field[i, y] = candy_orange; break;
+                    case (int)BlockID.purple: field[i, y] = candy_cube_purple; break;
                 }
             }
         }

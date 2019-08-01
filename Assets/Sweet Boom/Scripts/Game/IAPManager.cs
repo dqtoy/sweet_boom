@@ -60,7 +60,7 @@ namespace CompleteProject
                 return;
             }
 
-            foreach (var shopItem in Save.configuration.shopItems)
+            foreach (var shopItem in Save.configuration?.shopItems)
             {
                 coins.Add(new PurchaseCoinItem()
                 {

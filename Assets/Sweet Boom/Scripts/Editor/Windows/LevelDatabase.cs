@@ -46,9 +46,10 @@ public class LevelDatabase : Editor {
             {
                 try
                 {
-                    string[] fileDataAr = File.ReadAllLines($"{Application.streamingAssetsPath}{saveFolderName}");
+                    //string[] fileDataAr = File.ReadAllLines($"{Application.streamingAssetsPath}{saveFolderName}");
                     string fileData = ""; 
-                    foreach (var line in fileDataAr) fileData += line;
+                    //foreach (var line in fileDataAr) fileData += line;
+                    fileData = File.ReadAllText($"{Application.streamingAssetsPath}{saveFolderName}");
                     data = JsonUtility.FromJson<GameData>(fileData);
                     if (data == null)
                     {
@@ -158,6 +159,7 @@ public class LevelDatabase : Editor {
         {
             //string save = JsonConvert.SerializeObject(data);
             string save = JsonUtility.ToJson(data);
+            /*
             string[] jsonSave = new string[(save.Length / 100) + 1];
             for (int i = 0; i < jsonSave.Length; i++) jsonSave[i] = "";
             int stringCounter = 0, c = 0;
@@ -167,9 +169,13 @@ public class LevelDatabase : Editor {
                 stringCounter++;
                 if (stringCounter > 100) { c++; stringCounter = 0; }
             }
-            
-            if (!File.Exists($"{Application.streamingAssetsPath}{saveFolderName}")) Debug.Log("[Sweet Boom Editor] Gamedata folder created.");
-            File.WriteAllLines($"{Application.streamingAssetsPath}{saveFolderName}", jsonSave);
+            */
+            if (!File.Exists($"{Application.streamingAssetsPath}{saveFolderName}"))
+            {
+                File.Create($"{Application.streamingAssetsPath}{saveFolderName}").Dispose();
+                Debug.Log("[Sweet Boom Editor] Gamedata folder created.");
+            }
+            File.WriteAllText($"{Application.streamingAssetsPath}{saveFolderName}", save);
         }
         catch(Exception e)
         {
@@ -225,7 +231,7 @@ public class Level // Levels class for save added levels by developer
     public Vector3Int[] savedBlock;
     public int[] target;
     public Color[] levelColors;
-    public int[] starScore = new int[3];
+    public int[] starScore = new int[2];
 
     public Level(int levelNum_, int fieldWidth_, int fieldHeight_, string comment_, int[,] blocks, int[] trg, Color[] levelColors, int[] starsScore, 
         int goals, int maxScore, int candyReward, int goalreward)
@@ -292,7 +298,7 @@ public class ConfigurationSettings // Settings for SweetBoom editor
                 unityIAPId = "test1",
                 appStoreId = "appStoreTest1",
                 googlePlayId = "googlePlayTest1"
-            },
+            }, 
             new Shop.CoinShopItem()
             {
                 coinRew = 500,

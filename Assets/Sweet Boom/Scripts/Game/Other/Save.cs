@@ -9,6 +9,7 @@ using System.IO;
 using TMPro;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine.Networking;
 /// <summary>
 /// <para>[EN] Class with save functions and some survice functions.</para>
 /// <para>[RU] Класс предоставляющий функции сохранения, загрузки всех игровых данных, а также некоторые служебные функции.</para>
@@ -17,6 +18,7 @@ public static class Save {
     
     public static GameSave saveData { get; set; } // player progress
     public static GameData gameData { get; private set; } // levels data
+    public static LevelManager lvlManager { get; set; }
     public static ConfigurationSettings configuration
     {
         get
@@ -30,8 +32,8 @@ public static class Save {
     }
     static bool d = true;
     public static SoundController sound;
-    private static string gameDataPath = "/gamedata.txt", saveFileName = "/savedata.txt";
-    private static string fullGameInfoFilePath = $"{Application.streamingAssetsPath}{gameDataPath}", userDataSaveDirectory = $"{Application.streamingAssetsPath}{saveFileName}";
+    private static string gameDataPath = "gamedata.txt", saveFileName = "savedata.txt";
+    private static string fullGameInfoFilePath = $"{Application.streamingAssetsPath}/{gameDataPath}", userDataSaveDirectory = $"{Application.streamingAssetsPath}/{saveFileName}";
     public static Advert.CurrentPlatform curPlatform { get; set; }
 
     /// <summary>
@@ -62,8 +64,12 @@ public static class Save {
     /// [RU] Инициализация игровых данных (уровни, настройки рекламы и т.д.)
     /// </summary>
     /// <returns></returns>
-    public static GameData InitGameData()
+    public static void InitGameData()
     {
+        
+        lvlManager = GameObject.FindGameObjectWithTag("Respawn").GetComponent<LevelManager>();
+        Debug.Log($"lvlManager: {lvlManager.gameObject.name}");
+        
         string fileData = "";
         if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
@@ -73,32 +79,65 @@ public static class Save {
                 Debug.Log("Open Dudle/Level Editor " +
                 "to start making levels.");
                 gameData = GameData.SetDefualt();
-                return gameData;
             }
             else
             {
-                string[] fileDataAr = File.ReadAllLines(fullGameInfoFilePath);
-                foreach (var line in fileDataAr) fileData += line;
+                fileData = File.ReadAllText(fullGameInfoFilePath);
+                //string[] fileDataAr = File.ReadAllLines(fullGameInfoFilePath);
+                //foreach (var line in fileDataAr) fileData += line;
+                gameData = new GameData();
+                gameData = JsonConvert.DeserializeObject<GameData>(fileData);
+                gameData = gameData ?? GameData.SetDefualt();
+                configuration = gameData.settings ?? ConfigurationSettings.SetDefaultConfig();
+                if (configuration.sortingLevelsInMenu) // Level sorting
+                {
+                    for (int i = 0; i < gameData.levels.Count - 1; i++)
+                    {
+                        int min = int.MaxValue;
+                        Level minLvl = new Level();
+                        for (int j = i; j < gameData.levels.Count; j++)
+                        {
+                            if (gameData.levels[j].levelNum < min)
+                            {
+                                min = gameData.levels[j].levelNum;
+                                Level l = gameData.levels[i];
+                                gameData.levels[i] = gameData.levels[j];
+                                gameData.levels[j] = l;
+                            }
+                        }
+                    }
+                }
             }
-        }
-        else if (curPlatform == Advert.CurrentPlatform.android)
+        } 
+        else if (curPlatform == Advert.CurrentPlatform.android) 
         {
-            Debug.Log("[Sweet Boom Editor] Android");
-            try
-            {
-                string path = Path.Combine(Application.streamingAssetsPath + "/", "gamedata.txt");
-                WWW reader = new WWW(path);
-                while (!reader.isDone)
-                    ;
-                fileData = reader.text;
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("[Sweet Boom Editor] Exception while loading data");
-            }
+            CoroutineManager.CoroutineStart(InitGameDataAndroid());
+        }
+    }
+
+    public static IEnumerator InitGameDataAndroid()
+    {
+        string filePathAndroid = $"{Application.streamingAssetsPath}/{gameDataPath}";
+        string readedData = "";
+        if (filePathAndroid.Contains("jar:file://"))
+        {
+            UnityWebRequest www = UnityWebRequest.Get(filePathAndroid);
+            yield return www.SendWebRequest();
+            readedData = www.downloadHandler.text;
+            /*
+            DebugMessage($"path: {filePathAndroid}");
+            DebugMessage($" text:{www.downloadHandler.text}");
+            DebugMessage($"custom way: {Application.streamingAssetsPath}/{gameDataPath}");
+            Debug.Log($"[Debug] path: {filePathAndroid}, www: {www.downloadHandler.text}");
+            */
+        }
+        else // We are in Editor
+        {
+            if (File.Exists(filePathAndroid))
+                readedData = File.ReadAllText(filePathAndroid);
         }
         gameData = new GameData();
-        gameData = JsonConvert.DeserializeObject<GameData>(fileData);
+        gameData = JsonConvert.DeserializeObject<GameData>(readedData);
         gameData = gameData ?? GameData.SetDefualt();
         configuration = gameData.settings ?? ConfigurationSettings.SetDefaultConfig();
         if (configuration.sortingLevelsInMenu) // Level sorting
@@ -119,7 +158,6 @@ public static class Save {
                 }
             }
         }
-        return gameData;
     }
     /// <summary>
     /// <para>[EN] Return a random int number between 'from' [inclusive] and 'to' [inclusive]</para>
@@ -170,7 +208,7 @@ public static class Save {
         /// <para>[EN] Set completed level to 'complete' and open next level</para>
         /// <para>[RU] Помечает уровень как завершенный и открывает следующий</para>
         /// </summary>
-        /// <param name="num">[EN] number of completed level</param>
+        /// <param name="num">Number of completed level</param>
         public void UnlockNewLevel(int num, int score, int stars)
         {
             for(int i = 0; i < saveData.levels.Count; i++)
@@ -299,80 +337,112 @@ public static class Save {
     }
     public static void InitSavedData()
     {
-        //Debug.Log("[Sweet Boom Editor] Initialization...");
-        if (!File.Exists($"{Application.streamingAssetsPath}{saveFileName}"))
+        if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
-            File.Create($"{Application.streamingAssetsPath}{saveFileName}").Dispose();
-            saveData = new GameSave();
-            RestorePlayerData();
-        }
-        else
-        {
-            try
+            if (!File.Exists($"{Application.streamingAssetsPath}/{saveFileName}"))
+            {
+                File.Create($"{Application.streamingAssetsPath}/{saveFileName}").Dispose();
+                saveData = new GameSave();
+                RestorePlayerData();
+            }
+            else
             {
                 string saveDataJson = "";
-                string savePath = $"{Application.streamingAssetsPath}{saveFileName}";
-                string[] saveDataArray = File.ReadAllLines(savePath);
-                foreach (var line in saveDataArray) saveDataJson += line;
-                if(saveDataJson != null && saveDataJson != "") saveData = JsonConvert.DeserializeObject<GameSave>(saveDataJson);
-                else 
+                string savePath = $"{Application.streamingAssetsPath}/{saveFileName}";
+                if (!File.Exists(savePath))
+                {
+                    saveData = new GameSave();
+                    SaveAllUserData();
+                }
+                else
+                    saveDataJson = File.ReadAllText(savePath);
+                if (saveDataJson != null && saveDataJson != "") saveData = JsonConvert.DeserializeObject<GameSave>(saveDataJson);
+                else
                 {
                     Debug.Log("[Sweet Boom Editor] No save data founded.");
                     saveData = new GameSave();
                     RestorePlayerData();
                 }
-                if(gameData.levels.Count != saveData.levels.Count)
+                if (gameData.levels.Count != saveData.levels.Count)
                 {
                     foreach (var item in gameData.levels)
                     {
                         bool ex = false;
-                        foreach (var savedlvls in saveData.levels) if(savedlvls.levelNum == item.levelNum) { ex = true; break; }
-                        if(!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
+                        foreach (var savedlvls in saveData.levels) if (savedlvls.levelNum == item.levelNum) { ex = true; break; }
+                        if (!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
                     }
                 }
             }
-            catch(Exception e)
+        }
+        else if (curPlatform == Advert.CurrentPlatform.android)
+        {
+            CoroutineManager.CoroutineStart(InitSavedDataAndroid());
+        }
+    }
+
+    public static IEnumerator InitSavedDataAndroid()
+    {
+        string filePathAndroid = $"{Application.streamingAssetsPath}/{saveFileName}";
+        string readedData = "";
+        if (filePathAndroid.Contains("jar:file://"))
+        {
+            UnityWebRequest www = UnityWebRequest.Get(filePathAndroid);
+            yield return www.SendWebRequest();
+            readedData = www.downloadHandler.text;
+        }
+        else
+        {
+            if (!File.Exists(filePathAndroid))
+                File.Create(filePathAndroid).Dispose();
+            else
+                readedData = File.ReadAllText(filePathAndroid);
+        }
+        if (readedData != null && readedData != "") saveData = JsonConvert.DeserializeObject<GameSave>(readedData);
+        else
+        {
+            Debug.Log("[Sweet Boom Editor] No save data founded.");
+            saveData = new GameSave();
+            RestorePlayerData();
+        }
+        if (gameData.levels.Count != saveData.levels.Count)
+        {
+            foreach (var item in gameData.levels)
             {
-                Debug.Log($"[Sweet Boom Editor] {e.ToString()}");
-                saveData = new GameSave();
-                SaveAllUserData();
-                //RestorePlayerData();
-            }
-            finally
-            {
-                //Debug.Log("[Sweet Boom Editor] Data files initialized.");
+                bool ex = false;
+                foreach (var savedlvls in saveData.levels) if (savedlvls.levelNum == item.levelNum) { ex = true; break; }
+                if (!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
             }
         }
     }
     
     public static void SaveAllUserData()
     {
-        /* 
-        if (!File.Exists($"{Application.streamingAssetsPath}{saveFileName}")) 
-        {
-            File.Create($"{Application.streamingAssetsPath}{saveFileName}").Dispose();
-        }
-        */
         string saveDataJson = JsonConvert.SerializeObject(saveData);
-        string[] saveJsonArray = new string[saveDataJson.Length / 200 + 1];
-        int count = 0, j = 0;
-        for (int i = 0; i < saveDataJson.Length; ++i)
+        if (!File.Exists($"{Application.streamingAssetsPath}/{saveFileName}"))
         {
-            if(count >= 200)
-            {
-                j++;
-                count = 0;
-            }
-            saveJsonArray[j] += saveDataJson[i];
-            count++;
+            File.Create($"{Application.streamingAssetsPath}/{saveFileName}").Dispose();
         }
-        try
-        {
-            File.WriteAllLines($"{Application.streamingAssetsPath}{saveFileName}", saveJsonArray);
-        }
-        catch(Exception e) { Debug.Log($"[Sweet Boom Editor] Game save data read/write error. {e.ToString()}"); }
+        File.WriteAllText($"{Application.streamingAssetsPath}/{saveFileName}", saveDataJson);
     }
 
+    public static void DebugMessage(string message)
+    {
+        lvlManager.debugGUI.text += System.Environment.NewLine + message;
+    }
+    public enum GameDataBlockID
+    {
+        nil = 0,
+        empty,
+        candy,
+        ice,
+        block,
+        red,
+        green,
+        blue,
+        yellow,
+        orange,
+        purple
+    }
     public enum BlockID
     {
         nil = 0,
@@ -383,7 +453,7 @@ public static class Save {
     }
     public enum CandyType
     {
-        red,
+        red = 5,
         green,
         blue,
         yellow,

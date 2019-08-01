@@ -115,7 +115,6 @@ public class Shop : MonoBehaviour
         posY = -100;
         count = 0;
         float count2 = 0;
-        Debug.Log($"ASdasdjAsD: {Save.gameData.settings}");
         for (int i = 0; i < Save.gameData?.settings?.shopItems?.Count; i++) 
         {
             GameObject obj = Instantiate(coinStoreItemPrefab, coinSpawnParent.transform) as GameObject;
