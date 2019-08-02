@@ -27,7 +27,7 @@ public class CoroutineManager : MonoBehaviour
         }
         set
         {
-            cor = value as CoroutineManager;
+            cor = value as CoroutineManager ?? cor;
         }
     }
 

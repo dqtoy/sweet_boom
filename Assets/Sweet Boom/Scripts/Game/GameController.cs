@@ -515,8 +515,9 @@ public class GameController : MonoBehaviour, IGameController
         if (!isDeleted) OnNothingToDelete(thisObjField, objChangeDirection);
         else
         {
+            if(calcMoves)
+                gameInfo.currentMoves--;
             OnCandyProcessesEnded(fast);
-            if(calcMoves) gameInfo.currentMoves--;
             UIController.GetComponent<UIController>().UpdateUI();
         }
     }
@@ -918,14 +919,17 @@ public class GameController : MonoBehaviour, IGameController
     public void OnCandyProcessesStarts() => canTouch = false;    
     public void OnCandyProcessesEnded(bool refill)
     {
-        for (int i = 0; i < levelData.levelInfo.fieldHeight; i++) for (int j = 0; j < levelData.levelInfo.fieldWidth; j++) if (sweets[i, j].blockID != Save.BlockID.empty) sweets[i, j].index = new FieldCell.Index(i, j);
+        for (int i = 0; i < levelData.levelInfo.fieldHeight; ++i)
+            for (int j = 0; j < levelData.levelInfo.fieldWidth; ++j)
+                if (sweets[i, j].blockID != Save.BlockID.empty)
+                    sweets[i, j].index = new FieldCell.Index(i, j);
         int check = 0;
         
         foreach(var headerItem in gameInfo.targetInfo)
         {
             if (headerItem.Value.targetCount <= 0)
             {
-                check++;
+                ++check;
                 if (check == gameInfo.targetInfo.Count)
                 {
                     onGameWin();
@@ -953,7 +957,6 @@ public class GameController : MonoBehaviour, IGameController
                 }
             }
         }
-        // Check score
         if (gameInfo.currentMoves <= 0) onGameOver("Out of moves");
     }
     public void OnCandyDeleted()
@@ -967,7 +970,6 @@ public class GameController : MonoBehaviour, IGameController
     }
     public void OnGameWin()
     {
-        Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterWin);
         if(!gameInfo.isLevelWin)
         {
             StartCoroutine(UIController.GetComponent<UIController>().Loop(() => {
@@ -990,15 +992,16 @@ public class GameController : MonoBehaviour, IGameController
                     return true;
                 }
             }, 0.3f));
+            Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterWin);
         }
     }
     public void OnGameOver(string arg)
     {
-        Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterLose);
         if (!gameInfo.isLevelLose)
         {
             gameInfo.isLevelLose = true;
             StartCoroutine(UIController.GetComponent<UIController>().ShowMessage(new string[2] { "Out of moves!", $"Your score: {gameInfo.currentScore}" }, true, global::UIController.ShowUI.gameLose, 3));
+            Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterLose);
         }
     }
 

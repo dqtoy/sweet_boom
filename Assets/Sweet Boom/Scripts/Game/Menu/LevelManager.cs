@@ -57,8 +57,10 @@ public class LevelManager : MonoBehaviour {
 
     private void Start()
     {
+        Advert.ShowAdvertisementInterstitial(Advert.AdConfig.ShowPlace.afterMenuLoad);
         UpdateUI();
     }
+
     private void UpdateEnergy()
     {
         for (int i = 0; i < 5; i++)

@@ -1,15 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.SceneManagement;
-using System;
-using System.Threading.Tasks;
-using System.Threading;
-using TMPro;
 using UnityEditor.SceneManagement;
-using System.IO;
-using System.Net.Mail;
+using TMPro;
+using Newtonsoft.Json;
 
 public class EditLevels : EditorWindow {
 
@@ -345,39 +344,69 @@ public class EditLevels : EditorWindow {
             else selBlockID = (int)BlockID.nil;
 
             GUILayout.BeginArea(mainTextureRect); // LEFT ZONE
+
             GUILayout.BeginHorizontal();
             EditorGUILayout.HelpBox("To start making level choose width and height, select brush and click on the player field.", MessageType.Warning);
             if (GUILayout.Button("Help", GUILayout.Height(40)))
-            {
                 NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.help);
-            }
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("New Level", GUILayout.Height(35)))
-            {
+            if (GUILayout.Button("New Level", GUILayout.Height(22)))
                 NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.newLevel);
-            }
-
-            if (GUILayout.Button("Open Level", GUILayout.Height(35)))
-            {
+            if (GUILayout.Button("Open Level", GUILayout.Height(22)))
                 NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.open);
-            }
-
             GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Delete Level", GUILayout.Height(35))) NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.delete);
-
-            if (GUILayout.Button("Save / Save As", GUILayout.Height(35))) NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.saveLevelAs);
-
+            if (GUILayout.Button("Delete Level", GUILayout.Height(22))) NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.delete);
+            if (GUILayout.Button("Import file", GUILayout.Height(22)))
+            {
+                EditorUtility.DisplayDialog("Sweet Boom Editor", "Be sure to save the current file, as it will be replaced:)", "Yeah, I understand:)");
+                string path = EditorUtility.OpenFilePanelWithFilters("Select '.sb' file to open", @"C:\", new string[2] { "Sweet boom file", "sb" });
+                if (!string.IsNullOrEmpty(path))
+                {
+                    string importedData = File.ReadAllText(path);
+                    try
+                    {
+                        GameData test = JsonConvert.DeserializeObject<GameData>(importedData);
+                        LevelDatabase.data = test;
+                        LevelDatabase.SaveData();
+                        ConsoleLog("The file was successfully imported.");
+                    }
+                    catch (Exception ex)
+                    {
+                        EditorUtility.DisplayDialog("Sweet Boom Editor", "The selected file is damaged:(", "Oooh, ok!");
+                    }
+                }
+            }
+            if (GUILayout.Button("Export file", GUILayout.Height(22)))
+            {
+                string path = EditorUtility.SaveFilePanel("Export sweet boom file", @"C:\", "myLevels", "sb");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    try
+                    {
+                        if (!File.Exists(path))
+                            File.Create(path).Dispose();
+                        LevelDatabase.SaveData();
+                        string jsonSave = JsonUtility.ToJson(LevelDatabase.data);
+                        File.WriteAllText(path, jsonSave);
+                    }
+                    catch (Exception ex)
+                    {
+                        EditorUtility.DisplayDialog("An error occured!", "An unknown error occurred while trying to export a file.", "Oooh, ok!");
+                    }
+                }
+            }
             GUILayout.EndHorizontal();
+            if (GUILayout.Button("Save / Save As", GUILayout.Height(25))) NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.saveLevelAs);
+
             GUILayout.EndArea();
+
             GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
             GUILayout.BeginArea(mainTextureRightRect);
-
-            //GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
             GUILayout.Label("Target:");
 
@@ -660,17 +689,6 @@ public class EditLevels : EditorWindow {
             if (GUILayout.Button(candy_cube_purple, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candy_cube_purple;
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
-            /*
-            GUILayout.BeginHorizontal("box");
-            if (GUILayout.Button(candies, GUILayout.Width(40), GUILayout.Height(40))) selBrush = candies;
-            if (GUILayout.Button(ice, GUILayout.Width(40), GUILayout.Height(40))) selBrush = ice;
-            if (GUILayout.Button(rock, GUILayout.Width(40), GUILayout.Height(40))) selBrush = rock;
-            if (GUILayout.Button(empty, GUILayout.Width(40), GUILayout.Height(40))) selBrush = empty;
-            GUILayout.Label(" ");
-            if (GUILayout.Button(eraser, GUILayout.Width(40), GUILayout.Height(40))) selBrush = eraser;
-            if (GUILayout.Button(activeFill, GUILayout.Width(40), GUILayout.Height(40))) fill_en = !fill_en;
-            GUILayout.EndHorizontal();
-            */
             GUILayout.EndArea();
         }
         #endregion
@@ -728,25 +746,10 @@ public class EditLevels : EditorWindow {
             GUILayout.Label(" ");
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            if(levels != null)
-            {
-                //for (int i = 0; i < levels.Length-1; i++) Handles.DrawPolyLine(levels[i].transform.position, levels[i + 1].transform.position);
-                //Handles.DrawLine(levels[0].transform.position, levels[0].transform.position);
-            }
             if (GUILayout.Button("Create level icons", GUILayout.Height(25)))
             {
                 try
                 {
-                    /*
-                    if(flag == true)
-                    {
-                        menuObj.SetActive(false);
-                        levelObj.SetActive(true);
-                        editLevelsWindow.maxSize = new Vector2(600, 400);
-                        editLevelsWindow.minSize = new Vector2(600, 400);
-                        flag = false;
-                    }
-                    */
                     levels = new GameObject[LevelDatabase.data.levels.Count];
                     GameObject parent = GameObject.Find("#LevelIconsParent");
                     GameObject[] oldLevels = GameObject.FindGameObjectsWithTag("Level");
@@ -940,21 +943,7 @@ public class EditLevels : EditorWindow {
                 }
                 catch (Exception ex)
                 {
-                    if (EditorUtility.DisplayDialog("Sweet Boom Editor", "Exception while saving", "Ok")) { }
-                    /*
-                    switch (EditorUtility.DisplayDialogComplex("Sweet Boom Editor", $"Exception while saving: {ex.ToString()}", "Ok", "Report a bug", "Cancel"))
-                    {
-                        case 0:
-                            Debug.Log("0");
-                            break;
-                        case 1:
-                            Debug.Log("1");
-                            break;
-                        case 2:
-                            Debug.Log("2");
-                            break;
-                    }
-                    */
+                    EditorUtility.DisplayDialog("Sweet Boom Editor", "Exception while saving", "Ok");
                 }
             }
             if (GUILayout.Button("DELETE ALL GAME DATA", GUILayout.Height(40)))
@@ -1083,8 +1072,12 @@ public class EditLevels : EditorWindow {
     }
     public static void ConsoleLog(string message)
     {
-        if(DateTime.Now.Hour < 10) editorConsole = $"[0{DateTime.Now.Hour}:{DateTime.Now.Minute}] {message}";
-        else editorConsole = $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}] {message}";
+        string hour = DateTime.Now.Hour.ToString(), minute = DateTime.Now.Minute.ToString();
+        if (DateTime.Now.Hour < 10)
+            hour = $"0{DateTime.Now.Hour}";
+        if (DateTime.Now.Minute < 10)
+            minute = $"0{DateTime.Now.Minute}";
+        editorConsole = $"[{hour}:{minute}] {message}";
     }
 }
 #region Small window

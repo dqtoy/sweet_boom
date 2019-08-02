@@ -10,6 +10,7 @@ using TMPro;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.Networking;
+
 /// <summary>
 /// <para>[EN] Class with save functions and some survice functions.</para>
 /// <para>[RU] Класс предоставляющий функции сохранения, загрузки всех игровых данных, а также некоторые служебные функции.</para>
@@ -32,9 +33,9 @@ public static class Save {
     }
     static bool d = true;
     public static SoundController sound;
-    private static string gameDataPath = "gamedata.txt", saveFileName = "savedata.txt";
-    private static string fullGameInfoFilePath = $"{Application.streamingAssetsPath}/{gameDataPath}", userDataSaveDirectory = $"{Application.streamingAssetsPath}/{saveFileName}";
+    private static string gameDataPath = "data.sb", saveFileName = "save.sb";
     public static Advert.CurrentPlatform curPlatform { get; set; }
+    private static string currentSavePath = "";
 
     /// <summary>
     /// <para>[EN] Main initialization of the game </para>
@@ -59,6 +60,7 @@ public static class Save {
         saveData = new GameSave();
         InitSavedData();
     }
+
     /// <summary>
     /// [EN] Initialization of game data (levels, ads configs etc.)
     /// [RU] Инициализация игровых данных (уровни, настройки рекламы и т.д.)
@@ -66,15 +68,16 @@ public static class Save {
     /// <returns></returns>
     public static void InitGameData()
     {
-        
-        lvlManager = GameObject.FindGameObjectWithTag("Respawn").GetComponent<LevelManager>();
-        Debug.Log($"lvlManager: {lvlManager.gameObject.name}");
-        
         string fileData = "";
         if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
             Debug.Log("[Sweet Boom Editor] Undefined or IOS");
-            if (!File.Exists($"{fullGameInfoFilePath}"))
+            string path;
+            if (curPlatform == Advert.CurrentPlatform.undefined)
+                path = $"{Application.streamingAssetsPath}/{gameDataPath}";
+            else 
+                path = $"{Application.streamingAssetsPath}/Raw";
+            if (!File.Exists(path))
             {
                 Debug.Log("Open Dudle/Level Editor " +
                 "to start making levels.");
@@ -82,9 +85,7 @@ public static class Save {
             }
             else
             {
-                fileData = File.ReadAllText(fullGameInfoFilePath);
-                //string[] fileDataAr = File.ReadAllLines(fullGameInfoFilePath);
-                //foreach (var line in fileDataAr) fileData += line;
+                fileData = File.ReadAllText(path);
                 gameData = new GameData();
                 gameData = JsonConvert.DeserializeObject<GameData>(fileData);
                 gameData = gameData ?? GameData.SetDefualt();
@@ -115,6 +116,11 @@ public static class Save {
         }
     }
 
+    /// <summary>
+    /// [EN] Loading data from 'streaming assets' folder
+    /// [RU] Загрузка игровых данных из папки 'streaming assets'
+    /// </summary>
+    /// <returns></returns>
     public static IEnumerator InitGameDataAndroid()
     {
         string filePathAndroid = $"{Application.streamingAssetsPath}/{gameDataPath}";
@@ -124,12 +130,6 @@ public static class Save {
             UnityWebRequest www = UnityWebRequest.Get(filePathAndroid);
             yield return www.SendWebRequest();
             readedData = www.downloadHandler.text;
-            /*
-            DebugMessage($"path: {filePathAndroid}");
-            DebugMessage($" text:{www.downloadHandler.text}");
-            DebugMessage($"custom way: {Application.streamingAssetsPath}/{gameDataPath}");
-            Debug.Log($"[Debug] path: {filePathAndroid}, www: {www.downloadHandler.text}");
-            */
         }
         else // We are in Editor
         {
@@ -159,6 +159,7 @@ public static class Save {
             }
         }
     }
+
     /// <summary>
     /// <para>[EN] Return a random int number between 'from' [inclusive] and 'to' [inclusive]</para>
     /// <para>[RU] Возвращает случаное значение типа int в заданном промежутке (включая передаваемые параметры)</para>
@@ -172,9 +173,12 @@ public static class Save {
         while(true)
         {
             int result = UnityEngine.Random.Range(1, 101);
-            for (int i = 0; i < ((to - from) + 1); i++) if (result > i * dist && result <= (i + 1) * dist) return from + i;
+            for (int i = 0; i < ((to - from) + 1); i++)
+                if (result > i * dist && result <= (i + 1) * dist)
+                    return from + i;
         }
     }
+
     /// <summary>
     /// [EN] Invokes the delegate after the specified time has elapsed
     /// [RU] Вызывает переданный делегат по истечению указанного времени
@@ -187,6 +191,10 @@ public static class Save {
         yield return new WaitForSeconds(time * 1000);
         action?.Invoke();
     }
+
+    /// <summary>
+    /// [EN] 
+    /// </summary>
     [Serializable]
     public class GameSave
     {
@@ -204,11 +212,14 @@ public static class Save {
             boostersCount = new int[3];
             energy = 5;
         }
+
         /// <summary>
         /// <para>[EN] Set completed level to 'complete' and open next level</para>
         /// <para>[RU] Помечает уровень как завершенный и открывает следующий</para>
         /// </summary>
         /// <param name="num">Number of completed level</param>
+        /// <param name="score">Score of completed level</param>
+        /// <param name="stars">Earned stars</param>
         public void UnlockNewLevel(int num, int score, int stars)
         {
             for(int i = 0; i < saveData.levels.Count; i++)
@@ -239,6 +250,7 @@ public static class Save {
             }
             SaveAllUserData();
         }
+
         public void LevelsCollisionRemove()
         {
             if (saveData.levels.Count > 0)
@@ -261,6 +273,7 @@ public static class Save {
                 }
             }
         }
+
         /// <summary>
         /// <para>[EN] Reset all game progress</para>
         /// <para>[RU] Удаляет весь пользовательский прогресс</para>
@@ -269,6 +282,7 @@ public static class Save {
         {
 
         }
+
         [JsonIgnore]
         public int Coins
         {
@@ -280,6 +294,7 @@ public static class Save {
             }
         }
     }
+
     /// <summary>
     /// [EN] Save slot wich presents each level
     /// [RU] Класс представляющий каждый уровень в сохранении 
@@ -304,12 +319,14 @@ public static class Save {
             this.stars = stars;
         }
     }
+
     public enum LevelStatus
     {
         locked,
         enabled,
         completed
     }
+
     /// <summary>
     /// <para>[EN] returns level by number </para>
     /// <para>[RU] Возвращает уровень с соответствующим номером </para>
@@ -320,6 +337,7 @@ public static class Save {
         foreach (var item in saveData.levels) if(item.levelNum == number) return item;
         return null;
     }
+
     public static void RestorePlayerData()
     {
         saveData.levels = new List<SaveSlot>();
@@ -335,51 +353,50 @@ public static class Save {
             saveData.levels[0].status = LevelStatus.enabled;
         SaveAllUserData();
     }
+
     public static void InitSavedData()
     {
-        if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
+        string path;
+        if (curPlatform == Advert.CurrentPlatform.android)
+            path = $"{Application.persistentDataPath}/{saveFileName}";
+        else
+            path = $"{Application.dataPath}/{saveFileName}";
+        currentSavePath = path;
+        if (!File.Exists(path))
         {
-            if (!File.Exists($"{Application.streamingAssetsPath}/{saveFileName}"))
+            File.Create(path).Dispose();
+            saveData = new GameSave();
+            RestorePlayerData();
+        }
+        else
+        {
+            string saveDataJson = "";
+            if (!File.Exists(path))
             {
-                File.Create($"{Application.streamingAssetsPath}/{saveFileName}").Dispose();
+                saveData = new GameSave();
+                SaveAllUserData();
+            }
+            else
+                saveDataJson = File.ReadAllText(path);
+            if (saveDataJson != null && saveDataJson != "") saveData = JsonConvert.DeserializeObject<GameSave>(saveDataJson);
+            else
+            {
+                Debug.Log("[Sweet Boom Editor] No save data founded.");
                 saveData = new GameSave();
                 RestorePlayerData();
             }
-            else
+            if (gameData.levels.Count != saveData.levels.Count)
             {
-                string saveDataJson = "";
-                string savePath = $"{Application.streamingAssetsPath}/{saveFileName}";
-                if (!File.Exists(savePath))
+                foreach (var item in gameData.levels)
                 {
-                    saveData = new GameSave();
-                    SaveAllUserData();
-                }
-                else
-                    saveDataJson = File.ReadAllText(savePath);
-                if (saveDataJson != null && saveDataJson != "") saveData = JsonConvert.DeserializeObject<GameSave>(saveDataJson);
-                else
-                {
-                    Debug.Log("[Sweet Boom Editor] No save data founded.");
-                    saveData = new GameSave();
-                    RestorePlayerData();
-                }
-                if (gameData.levels.Count != saveData.levels.Count)
-                {
-                    foreach (var item in gameData.levels)
-                    {
-                        bool ex = false;
-                        foreach (var savedlvls in saveData.levels) if (savedlvls.levelNum == item.levelNum) { ex = true; break; }
-                        if (!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
-                    }
+                    bool ex = false;
+                    foreach (var savedlvls in saveData.levels) if (savedlvls.levelNum == item.levelNum) { ex = true; break; }
+                    if (!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
                 }
             }
         }
-        else if (curPlatform == Advert.CurrentPlatform.android)
-        {
-            CoroutineManager.CoroutineStart(InitSavedDataAndroid());
-        }
     }
-
+    /*
     public static IEnumerator InitSavedDataAndroid()
     {
         string filePathAndroid = $"{Application.streamingAssetsPath}/{saveFileName}";
@@ -414,15 +431,18 @@ public static class Save {
             }
         }
     }
-    
+    */
+
+    /// <summary>
+    /// [EN] Call this method if you want to save player's progress
+    /// [RU] Статический метод для сохранения прогресса игрока в 
+    /// </summary>
     public static void SaveAllUserData()
     {
         string saveDataJson = JsonConvert.SerializeObject(saveData);
-        if (!File.Exists($"{Application.streamingAssetsPath}/{saveFileName}"))
-        {
-            File.Create($"{Application.streamingAssetsPath}/{saveFileName}").Dispose();
-        }
-        File.WriteAllText($"{Application.streamingAssetsPath}/{saveFileName}", saveDataJson);
+        if (!File.Exists(currentSavePath))
+            File.Create(currentSavePath).Dispose();
+        File.WriteAllText(currentSavePath, saveDataJson);
     }
 
     public static void DebugMessage(string message)

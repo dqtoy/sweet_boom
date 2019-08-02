@@ -36,8 +36,27 @@ public class Shop : MonoBehaviour
     {
         Advert.InitAdvertisement();
         InitShop();
-        InitRewardedVideo();
+        InitRewardedVideoButton();
     }
+
+    /// <summary>
+    /// [EN] Loop coroutine which calls function with certain delay
+    /// [RU] Корутина вызывающая переданный метод с определенной задержкой
+    /// </summary>
+    /// <param name="func">Function to call</param>
+    /// <param name="delay">Delay (seconds)</param>
+    /// <returns></returns>
+    public IEnumerator Loop(Action func, int delay)
+    {
+        while (this.enabled)
+        {
+            if (func == null)
+                break;
+            func?.Invoke();
+            yield return new WaitForSeconds(delay);
+        }
+    }
+
     /// <summary>
     /// [EN] Called when user successfully complete rewarded video
     /// [RU] Вызывается при успешном завершении просмотра вознаграждаемой рекламы пользователем
@@ -46,6 +65,7 @@ public class Shop : MonoBehaviour
     {
         AddCoins(Save.gameData.settings.adConfig.rewardedVideoOpt.rewardedAdvertisementReward);
     }
+
     /// <summary>
     /// [EN] Method for adding coins
     /// [RU] Метод для добавления внутриигровой валюты
@@ -57,18 +77,55 @@ public class Shop : MonoBehaviour
         SoundController.PlaySound(SoundController.SoundType.coins);
     }
 
-    private void InitRewardedVideo()
+    public void RewardedVideoLoaded()
+    {
+        Debug.Log($"[Sweet Boom Editor] Ad loaded");
+        if (Advert.isRewardedVideoEnabled)
+        {
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
+            rewVideoButton.gameObject.GetComponent<Button>().interactable = true;
+        }
+    }
+
+    public void DisableRewardedVideo()
+    {
+        Debug.Log($"[Sweet Boom Editor] Button disabled");
+        if (!Advert.isRewardedVideoEnabled)
+        {
+            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
+            rewVideoButton.gameObject.GetComponent<Button>().interactable = false;
+        }
+    }
+
+    private void InitRewardedVideoButton()
     {
         rewVideoButton.onClick.AddListener(new UnityEngine.Events.UnityAction(OnRewardedVideoButtonClick));
         if (Save.gameData.settings.adConfig.rewardedVideoOpt.enabled)
         {
             rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
+            rewVideoButton.gameObject.GetComponent<Button>().interactable = true;
             rewardedVideoActivity = true;
+            Advert.onUnityAdsRewardedLoaded += RewardedVideoLoaded;
+            Advert.onAdMobRewardedLoaded += RewardedVideoLoaded;
+            Advert.onVideoStackEmpty += DisableRewardedVideo;
+            /*
+            StartCoroutine(Loop(() => {
+                Debug.Log($"[Sweet Boom Editor] Check advertisement");
+                if (Advert.isRewardedVideoEnabled)
+                {
+                    rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
+                }
+                else
+                {
+                    rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
+                }
+            }, 5));
+            */
         }
         else
         {
             rewardedVideoActivity = false;
-            rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
+            rewVideoButton.gameObject.SetActive(false);
         }
     }
 
@@ -136,11 +193,6 @@ public class Shop : MonoBehaviour
                 coinSpawnParent.GetComponent<RectTransform>().offsetMin = new Vector2(0, count2);
             }
         }
-    }
-
-    private void IAPManager_onPurchaseSuccess(string obj)
-    {
-        throw new NotImplementedException();
     }
 
     public void BuyBooster(int id)

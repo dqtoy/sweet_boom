@@ -11,8 +11,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class LevelDatabase : Editor {
 
     public static GameData data;
-    public static string saveFolderName = "/gamedata.txt";
-    public static List<Shop.CoinShopItem> shopItems 
+    public static string saveFolderName = "/data.sb";
+    public static List<Shop.CoinShopItem> shopItems
     { 
         get
         {
@@ -32,7 +32,7 @@ public class LevelDatabase : Editor {
     /// <returns></returns>
     public static void Initialization() // Load saved levels from json
     {
-        Debug.Log("[Sweet Boom Editor] Initialization");
+        //Debug.Log("[Sweet Boom Editor] Initialization");
         try
         {
             if (!File.Exists($"{Application.streamingAssetsPath}{saveFolderName}"))
@@ -157,19 +157,7 @@ public class LevelDatabase : Editor {
     {
         try
         {
-            //string save = JsonConvert.SerializeObject(data);
             string save = JsonUtility.ToJson(data);
-            /*
-            string[] jsonSave = new string[(save.Length / 100) + 1];
-            for (int i = 0; i < jsonSave.Length; i++) jsonSave[i] = "";
-            int stringCounter = 0, c = 0;
-            for(int i = 0; i < save.Length; i++)
-            {
-                jsonSave[c] += save[i];
-                stringCounter++;
-                if (stringCounter > 100) { c++; stringCounter = 0; }
-            }
-            */
             if (!File.Exists($"{Application.streamingAssetsPath}{saveFolderName}"))
             {
                 File.Create($"{Application.streamingAssetsPath}{saveFolderName}").Dispose();
