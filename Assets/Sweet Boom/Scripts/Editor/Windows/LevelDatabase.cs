@@ -214,15 +214,16 @@ public class GameData // All game data from SweetBoom editor
 [Serializable]
 public class Level // Levels class for save added levels by developer
 {
-    public int levelNum, fieldWidth, fieldHeight, goals, maxScore, candyReward, goalReward;
+    public int levelNum, fieldWidth, fieldHeight, goals, maxScore, candyReward, goalReward, 
+        lvlComplete, lvlCompleteAgain, lvlSuperComplete;
     public string comment;
     public Vector3Int[] savedBlock;
     public int[] target;
     public Color[] levelColors;
     public int[] starScore = new int[2];
 
-    public Level(int levelNum_, int fieldWidth_, int fieldHeight_, string comment_, int[,] blocks, int[] trg, Color[] levelColors, int[] starsScore, 
-        int goals, int maxScore, int candyReward, int goalreward)
+    public Level(int levelNum_, int fieldWidth_, int fieldHeight_, string comment_, int[,] blocks, int[] trg, Color[] levelColors, int[] starsScore,
+        int goals, int maxScore, int candyReward, int goalreward, int lvlCmpl, int lvlCmplAg, int lvlSuperCmpl)
     {
         levelNum = levelNum_;
         fieldWidth = fieldWidth_;
@@ -235,6 +236,9 @@ public class Level // Levels class for save added levels by developer
         this.starScore = starsScore;
         this.candyReward = candyReward;
         this.goalReward = goalreward;
+        lvlComplete = lvlCmpl;
+        lvlCompleteAgain = lvlCmplAg;
+        lvlSuperComplete = lvlSuperCmpl;
 
         savedBlock = new Vector3Int[fieldWidth_ * fieldHeight_];
         int counter = 0;
@@ -252,11 +256,13 @@ public class Level // Levels class for save added levels by developer
 public class ConfigurationSettings // Settings for SweetBoom editor
 {
     public bool sortingLevelsInMenu, randomizePositionOfIcons, fps;
+    public string rateUsLink;
     public float distance, size;
     public Advert.AdConfig adConfig;
     public List<Shop.CoinShopItem> shopItems;
 
-    public ConfigurationSettings(bool sorting, bool randomize, float dist, float size, bool fps, Advert.AdConfig adConfig, List<Shop.CoinShopItem> shopItems)
+    public ConfigurationSettings(bool sorting, bool randomize, float dist, float size, bool fps, 
+        Advert.AdConfig adConfig, List<Shop.CoinShopItem> shopItems, string rateUs)
     {
         sortingLevelsInMenu = sorting;
         randomizePositionOfIcons = randomize;
@@ -265,6 +271,7 @@ public class ConfigurationSettings // Settings for SweetBoom editor
         this.fps = fps;
         this.adConfig = adConfig;
         this.shopItems = shopItems;
+        this.rateUsLink = rateUs;
     }
 
     public ConfigurationSettings() { }

@@ -23,8 +23,9 @@ public class GameController : MonoBehaviour, IGameController
     [Header("Red Cross Prefab")] [SerializeField] private GameObject redCrossPrefab;
     [SerializeField] private Sprite[] candyCrushSprites;
     [SerializeField] public ItemData itemData;
-    [SerializeField] private GameObject pausePopup, faderS;
+    [SerializeField] private GameObject pausePopup, faderS, faderGlobalS;
     private GameObject musicSwitcher, soundSwitcher;
+    private static GameObject fader_, faderGlobal_;
     private static GameObject fader;
     public Camera mainCamera;
     public TextMeshProUGUI fpsCounter;
@@ -88,7 +89,10 @@ public class GameController : MonoBehaviour, IGameController
     {
         levelData = SceneConnect.GetLevelData();
         if (Save.configuration != null) if (Save.configuration.fps) fpsCounter.gameObject.SetActive(true);
-        fader = faderS;
+        fader_ = faderS;
+        faderGlobal_ = faderGlobalS;
+        fader = fader_;
+        faderGlobalS.gameObject.SetActive(false);
         StartCoroutine(GameSceneFader(() => StartCoroutine(UIController.GetComponent<UIController>().ShowMessage($"Raise shields for candy! Level: {levelData.levelNum}", 1, global::UIController.ShowUI.defaultAlert)), GameController.FaderFunctions.fromBlack));
 
         UIController = GameObject.FindGameObjectWithTag("UIController");
@@ -972,6 +976,18 @@ public class GameController : MonoBehaviour, IGameController
     {
         if(!gameInfo.isLevelWin)
         {
+            for (int i = 0; i < Save.saveData.levels.Count; ++i)
+            {
+                if (Save.saveData.levels[i].levelNum == levelData.levelInfo.levelNum)
+                {
+                    if (Save.saveData.levels[i].stars == 0 && gameInfo.hasStar[1] == false)
+                        Save.saveData.Coins += levelData.levelInfo.lvlComplete;
+                    else if (Save.saveData.levels[i].stars < 3 && gameInfo.hasStar[1] == true)
+                        Save.saveData.Coins += levelData.levelInfo.lvlSuperComplete;
+                    else
+                        Save.saveData.Coins += levelData.levelInfo.lvlCompleteAgain;
+                }
+            }
             StartCoroutine(UIController.GetComponent<UIController>().Loop(() => {
                 if (gameInfo.currentMoves > 0)
                 {
@@ -1297,13 +1313,13 @@ public class GameController : MonoBehaviour, IGameController
                 fader.gameObject.SetActive(true);
                 while (fader.GetComponent<Image>().color.a < 1)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 0.05f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 5 * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 function?.Invoke();
                 while (fader.GetComponent<Image>().color.a > 0)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 0.05f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 5 * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 fader.gameObject.SetActive(false);
@@ -1314,7 +1330,7 @@ public class GameController : MonoBehaviour, IGameController
                 fader.GetComponent<Image>().color = new Color(0, 0, 0, 1);
                 while (fader.GetComponent<Image>().color.a > 0)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 0.05f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 5 * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 fader.gameObject.SetActive(false);
@@ -1325,7 +1341,7 @@ public class GameController : MonoBehaviour, IGameController
                 fader.GetComponent<Image>().color = new Color(0, 0, 0, 0);
                 while (fader.GetComponent<Image>().color.a < faderValue_)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 0.025f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 2.5f * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 break;
@@ -1334,20 +1350,22 @@ public class GameController : MonoBehaviour, IGameController
                 fader.GetComponent<Image>().color = new Color(0, 0, 0, 0.25f);
                 while (fader.GetComponent<Image>().color.a > 0)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 0.025f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a - 2.5f * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 fader.gameObject.SetActive(false);
                 break;
             case FaderFunctions.toBlack:
+                fader = faderGlobal_;
                 fader.gameObject.SetActive(true);
                 fader.GetComponent<Image>().color = new Color(0, 0, 0, 0);
                 while (fader.GetComponent<Image>().color.a < 1)
                 {
-                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 0.05f);
+                    fader.GetComponent<Image>().color = new Color(0, 0, 0, fader.GetComponent<Image>().color.a + 5 * Time.deltaTime);
                     yield return new WaitForSeconds(0.0001f * Time.deltaTime);
                 }
                 function?.Invoke();
+                fader = fader_;
                 break;
         }
     }

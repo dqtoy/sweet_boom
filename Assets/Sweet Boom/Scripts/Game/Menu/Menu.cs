@@ -12,8 +12,7 @@ public class Menu : MonoBehaviour {
     [Header("Choose amount of sectors")]
     [SerializeField]
     private Levels[] levelsZones;
-    [Header("Speed of fading")] [SerializeField] private float fadingSpeed;
-    private static float fadingSpeed_;
+    private static float fadingSpeed_ = 5;
 
     public GameObject settingsPanel, fader;
     private static GameObject faderS;
@@ -57,7 +56,6 @@ public class Menu : MonoBehaviour {
     private void Start()
     {
         faderS = fader;
-        fadingSpeed_ = fadingSpeed;
         StartCoroutine(Fader(null, FaderFunctions.fromBlack));
     }
     private void Update()
@@ -66,7 +64,9 @@ public class Menu : MonoBehaviour {
     }
     private void FixedUpdate()
     {
-        if(Save.configuration != null) if(Save.configuration.fps) fpsCountertxt.text = $"fps: {(int)(1 / Time.deltaTime)}";
+        if(Save.configuration != null)
+            if (Save.configuration.fps)
+                fpsCountertxt.text = $"fps: {(int)(1 / Time.deltaTime)}";
     }
     private void SettingsInit()
     {
@@ -111,6 +111,17 @@ public class Menu : MonoBehaviour {
 
             case "#rate_btn":
                 SoundController.PlaySound(SoundController.SoundType.clickOpen);
+                if (!string.IsNullOrEmpty(Save.gameData.settings.rateUsLink))
+                {
+                    try
+                    {
+                        Application.OpenURL(Save.gameData.settings.rateUsLink);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log($"[Sweet Boom Editor] {ex.ToString()}");
+                    }
+                }
                 break;
 
             case "#backmenu_btn":

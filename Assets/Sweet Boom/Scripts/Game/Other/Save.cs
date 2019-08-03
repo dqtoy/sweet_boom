@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 
 using System.Collections;
 using System.Collections.Generic;
@@ -43,14 +43,14 @@ public static class Save {
     /// </summary>
     public static void Init()
     {
-#if UNITY_ANDROID && !DEBUG
+#if UNITY_EDITOR
+        curPlatform = Advert.CurrentPlatform.undefined;
+#elif UNITY_ANDROID && !DEBUG
         curPlatform = Advert.CurrentPlatform.android;
-        Debug.Log("Android...");
 #elif UNITY_IOS
         curPlatform = Advert.CurrentPlatform.ios;
 #elif DEBUG || (!UNITY_ANDROID && !UNITY_IOS)
         curPlatform = Advert.CurrentPlatform.undefined;
-        Debug.Log("[Sweet Boom Editor] Undefined platform");
 #endif
         Application.quitting += SaveAllUserData;
 
@@ -71,7 +71,7 @@ public static class Save {
         string fileData = "";
         if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
-            Debug.Log("[Sweet Boom Editor] Undefined or IOS");
+            Debug.Log($"[Sweet Boom Editor] platform: {curPlatform}");
             string path;
             if (curPlatform == Advert.CurrentPlatform.undefined)
                 path = $"{Application.streamingAssetsPath}/{gameDataPath}";
@@ -280,7 +280,8 @@ public static class Save {
         /// </summary>
         public void ResetProgress()
         {
-
+            saveData = new GameSave();
+            RestorePlayerData();
         }
 
         [JsonIgnore]
@@ -377,7 +378,9 @@ public static class Save {
                 SaveAllUserData();
             }
             else
+            {
                 saveDataJson = File.ReadAllText(path);
+            }
             if (saveDataJson != null && saveDataJson != "") saveData = JsonConvert.DeserializeObject<GameSave>(saveDataJson);
             else
             {
@@ -396,42 +399,6 @@ public static class Save {
             }
         }
     }
-    /*
-    public static IEnumerator InitSavedDataAndroid()
-    {
-        string filePathAndroid = $"{Application.streamingAssetsPath}/{saveFileName}";
-        string readedData = "";
-        if (filePathAndroid.Contains("jar:file://"))
-        {
-            UnityWebRequest www = UnityWebRequest.Get(filePathAndroid);
-            yield return www.SendWebRequest();
-            readedData = www.downloadHandler.text;
-        }
-        else
-        {
-            if (!File.Exists(filePathAndroid))
-                File.Create(filePathAndroid).Dispose();
-            else
-                readedData = File.ReadAllText(filePathAndroid);
-        }
-        if (readedData != null && readedData != "") saveData = JsonConvert.DeserializeObject<GameSave>(readedData);
-        else
-        {
-            Debug.Log("[Sweet Boom Editor] No save data founded.");
-            saveData = new GameSave();
-            RestorePlayerData();
-        }
-        if (gameData.levels.Count != saveData.levels.Count)
-        {
-            foreach (var item in gameData.levels)
-            {
-                bool ex = false;
-                foreach (var savedlvls in saveData.levels) if (savedlvls.levelNum == item.levelNum) { ex = true; break; }
-                if (!ex) saveData.levels.Add(new SaveSlot(item.levelNum, LevelStatus.locked));
-            }
-        }
-    }
-    */
 
     /// <summary>
     /// [EN] Call this method if you want to save player's progress
@@ -518,7 +485,8 @@ public static class Save {
     [Serializable]
     public class Level // Levels class for save added levels by developer
     {
-        public int levelNum, fieldWidth, fieldHeight, goals, maxScore, candyReward, goalReward;
+        public int levelNum, fieldWidth, fieldHeight, goals, maxScore, candyReward, goalReward,
+            lvlComplete, lvlCompleteAgain, lvlSuperComplete;
         public string comment;
         public Vector3Int[] savedBlock;
         public int[] target;
@@ -529,6 +497,7 @@ public static class Save {
     public class ConfigurationSettings
     {
         public bool sortingLevelsInMenu, randomizePositionOfIcons, fps;
+        public string rateUsLink;
         public float distance, size;
         public Advert.AdConfig adConfig;
         public List<Shop.CoinShopItem> shopItems;

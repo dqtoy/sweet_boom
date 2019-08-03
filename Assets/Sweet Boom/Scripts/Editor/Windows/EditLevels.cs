@@ -19,7 +19,8 @@ public class EditLevels : EditorWindow {
     static Rect mainTextureRect, mainTextureRightRect, playFieldRect, logoRect, leftTextureRect, headerRect, logoMenuRect, logoSetRect, selectColorRect, consoleRect;
     static Vector2 scrollLevelEditor, scrollIAP;
     public static int width, height;
-    public static int updWidth, updHeight, greenAm, blueAm, orangeAm, redAm, yellowAm, purpleAm, currentLvlNum, maxGoals, maxScore, candyReward, goalReward;
+    public static int updWidth, updHeight, greenAm, blueAm, orangeAm, redAm, yellowAm, purpleAm, currentLvlNum, maxGoals, maxScore, candyReward, goalReward, lvlCompleteRew, lvlCompleteAgain, lvlSuperCompl;
+    public static string rateUsLink;
     public static int[] starTargetScore = new int[2];
     private bool isDataEx;
     public static Texture2D[,] field;
@@ -222,7 +223,7 @@ public class EditLevels : EditorWindow {
             mainTextureRightRect.y = 150;
             //mainTextureRightRect.width = (Screen.width - mainTextureRect.x) / 2 - 20;
             mainTextureRightRect.width = ((Screen.width - playFieldRect.x * 3) / 2) / 2 - 5;
-            mainTextureRightRect.height = 230;
+            mainTextureRightRect.height = 240;
             mainTextureRight.Apply();
 
             leftTextureRect.x = 5;
@@ -247,9 +248,9 @@ public class EditLevels : EditorWindow {
             playFieldRect.width = Screen.width - playFieldRect.x * 2;
             playFieldRect.height = 383;
 
-            consoleRect.x = Screen.width / 2 + 5;
-            consoleRect.y = 340;
-            consoleRect.width = (((Screen.width - playFieldRect.x * 3) / 2) / 2 - 2) * 2 + 2;
+            consoleRect.x = Screen.width / 2 + Screen.width / 4 - 3;
+            consoleRect.y = 335;
+            consoleRect.width = Screen.width / 4 - 10;
             consoleRect.height = 45;
 
             GUI.DrawTexture(consoleRect, consoleTexture);
@@ -392,6 +393,7 @@ public class EditLevels : EditorWindow {
                         LevelDatabase.SaveData();
                         string jsonSave = JsonUtility.ToJson(LevelDatabase.data);
                         File.WriteAllText(path, jsonSave);
+                        ConsoleLog("Success!");
                     }
                     catch (Exception ex)
                     {
@@ -446,12 +448,20 @@ public class EditLevels : EditorWindow {
             purpleAm = EditorGUILayout.IntField(purpleAm);
             GUILayout.EndHorizontal();
 
-            //GUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("Reward for level");
+            lvlCompleteRew = EditorGUILayout.IntField(lvlCompleteRew);
+
+            EditorGUILayout.LabelField("Excellent level reward");
+            lvlSuperCompl = EditorGUILayout.IntField(lvlSuperCompl);
+
+            EditorGUILayout.LabelField("Re-passing the level");
+            lvlCompleteAgain = EditorGUILayout.IntField(lvlCompleteAgain);
+
             GUILayout.EndArea();
 
             GUILayout.BeginArea(selectColorRect); // SELECT COLOR SECTION
 
-            GUILayout.Label("Background cubes");
+            GUILayout.Label("Background colors");
             EditorGUILayout.BeginHorizontal("box");
             GUILayout.BeginVertical();
             GUILayout.Label("Color#1");
@@ -477,6 +487,9 @@ public class EditLevels : EditorWindow {
                 goalReward = 15;
                 blockColor1 = new Color(0.41f, 0.43f, 1, 0.7f);
                 blockColor2 = new Color(0.53f, 0.56f, 1, 0.7f);
+                lvlCompleteRew = 70;
+                lvlCompleteAgain = 20;
+                lvlSuperCompl = 120;
             }
             GUILayout.EndArea();
             GUILayout.EndHorizontal();
@@ -628,7 +641,6 @@ public class EditLevels : EditorWindow {
                 field = new Texture2D[updHeight, updWidth];
                 block = new int[updHeight, updWidth];
             }
-
             if (GUILayout.Button("Reset field", GUILayout.Height(20)))
             {
                 for (int i = 0; i < updHeight; i++)
@@ -771,7 +783,7 @@ public class EditLevels : EditorWindow {
                             else levels[i].GetComponent<RectTransform>().localPosition = 
                                     new Vector2(0, levels[i - 1].GetComponent<RectTransform>().localPosition.y + sliderValueDistance);
                         }
-                        levels[i].gameObject.name = $"#level:{i+1}";
+                        levels[i].gameObject.name = $"#level:{i + 1}";
                         levels[i].transform.Find("#Stars").gameObject.SetActive(true);
                         levels[i].transform.Find("#LevelNumber").GetComponent<TextMeshProUGUI>().text = $"{i + 1}";
                         Selection.activeGameObject = levels[i].gameObject;
@@ -794,7 +806,8 @@ public class EditLevels : EditorWindow {
             
             if (GUILayout.Button("Save changes", GUILayout.Height(40)))
             {
-                ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, adConfig, LevelDatabase.shopItems);
+                ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, 
+                    adConfig, LevelDatabase.shopItems, rateUsLink);
                 LevelDatabase.data.settings = conf;
                 LevelDatabase.SaveData();
                 menuConsole = $"[{DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}] Changes saved!";
@@ -813,10 +826,12 @@ public class EditLevels : EditorWindow {
             editLevelsWindow.minSize = new Vector2(600, 700);
             GUILayout.BeginArea(menuTextureRect);
             enableFpsCounter = EditorGUILayout.ToggleLeft("Enable fps counter in game", enableFpsCounter);
-            EditorGUILayout.LabelField("Customization", EditorStyles.boldLabel);
+
+            rateUsLink = EditorGUILayout.TextField("Rate us button link", rateUsLink);
+            /*
             prefab = EditorGUILayout.ObjectField(prefab, typeof(Sprite), false);
             Blocks asset = (Blocks)AssetDatabase.LoadAssetAtPath("Assets/Candy World/Prefabs/Blocks/Green Candy.asset", typeof(Blocks));
-            
+            */
             EditorGUILayout.LabelField("Advertisement settings", EditorStyles.boldLabel);
             adConfig.unityAdsEnable = EditorGUILayout.ToggleLeft("Use Unity Ads", adConfig.unityAdsEnable);
             adConfig.adMobEnable = EditorGUILayout.ToggleLeft("Use AdMob", adConfig.adMobEnable);
@@ -936,8 +951,8 @@ public class EditLevels : EditorWindow {
             {
                 try
                 {
-                    ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, adConfig, LevelDatabase.shopItems);
-                    Debug.Log($"test: {conf.adConfig.rewardedVideoOpt.enabled}");
+                    ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, 
+                        adConfig, LevelDatabase.shopItems, EditLevels.rateUsLink);
                     LevelDatabase.data.settings = conf;
                     LevelDatabase.SaveData();
                 }
@@ -1287,7 +1302,8 @@ public class NewLevelWin : EditorWindow
                     colorToSave[0] = EditLevels.blockColor1;
                     colorToSave[1] = EditLevels.blockColor2;
                     Level saveThis = new Level(saveAsNum, EditLevels.updWidth, EditLevels.updHeight, EditLevels.description, EditLevels.block, target, colorToSave, EditLevels.starTargetScore, 
-                        EditLevels.maxGoals, EditLevels.maxScore, EditLevels.candyReward, EditLevels.goalReward);
+                        EditLevels.maxGoals, EditLevels.maxScore, EditLevels.candyReward, EditLevels.goalReward, EditLevels.lvlCompleteRew, 
+                            EditLevels.lvlCompleteAgain, EditLevels.lvlSuperCompl);
                     LevelDatabase.SaveLevel(saveAsNum, saveThis);
                     levelNewWin.Close();
                 }
@@ -1416,7 +1432,11 @@ public class NewLevelWin : EditorWindow
                 EditLevels.field = new Texture2D[EditLevels.updHeight, EditLevels.updWidth];
                 EditLevels.block = new int[EditLevels.updHeight, EditLevels.updWidth];
 
-                for(int p = 0; p < EditLevels.updHeight; p++)
+                EditLevels.lvlCompleteRew = LevelDatabase.data.levels[i].candyReward;
+                EditLevels.lvlCompleteAgain = LevelDatabase.data.levels[i].lvlCompleteAgain;
+                EditLevels.lvlSuperCompl = LevelDatabase.data.levels[i].lvlSuperComplete;
+
+                for (int p = 0; p < EditLevels.updHeight; p++)
                 {
                     for (int q = 0; q < EditLevels.updWidth; q++)
                     {
