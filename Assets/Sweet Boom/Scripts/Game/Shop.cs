@@ -21,6 +21,14 @@ public class Shop : MonoBehaviour
 
     public static bool rewardedVideoActivity { get; private set; }
 
+    #region SingletonPattern
+    public static Shop Instance { get; private set; }
+    private void SingletonPatternInit()
+    {
+        Instance = this;
+    }
+    #endregion
+
     [HideInInspector] public int CoinBalanceUI 
     { 
         get
@@ -32,11 +40,29 @@ public class Shop : MonoBehaviour
     }
     private static bool isShopInited = false;
 
+    private void Awake()
+    {
+        SingletonPatternInit();
+    }
+
     private void Start() 
     {
         Advert.InitAdvertisement();
         InitShop();
         InitRewardedVideoButton();
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            Save.GameQuitOrPause();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        Save.GameQuitOrPause();
     }
 
     /// <summary>
@@ -108,19 +134,6 @@ public class Shop : MonoBehaviour
             Advert.onUnityAdsRewardedLoaded += RewardedVideoLoaded;
             Advert.onAdMobRewardedLoaded += RewardedVideoLoaded;
             Advert.onVideoStackEmpty += DisableRewardedVideo;
-            /*
-            StartCoroutine(Loop(() => {
-                Debug.Log($"[Sweet Boom Editor] Check advertisement");
-                if (Advert.isRewardedVideoEnabled)
-                {
-                    rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[1];
-                }
-                else
-                {
-                    rewVideoButton.gameObject.GetComponent<Image>().sprite = rewButtonSprites[0];
-                }
-            }, 5));
-            */
         }
         else
         {

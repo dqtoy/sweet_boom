@@ -20,6 +20,7 @@ public static class Save {
     public static GameSave saveData { get; set; } // player progress
     public static GameData gameData { get; private set; } // levels data
     public static LevelManager lvlManager { get; set; }
+    public static Timer EnergyRenewal { get; set; }
     public static ConfigurationSettings configuration
     {
         get
@@ -36,6 +37,31 @@ public static class Save {
     private static string gameDataPath = "data.sb", saveFileName = "save.sb";
     public static Advert.CurrentPlatform curPlatform { get; set; }
     private static string currentSavePath = "";
+
+    private static bool isCalled = false;
+    public static int EnergyCount
+    {
+        get
+        {
+            return saveData.energy;
+        }
+        set
+        {
+            if (value < 5 && !EnergyRenewal.IsRunning)
+            {
+                Debug.Log($"Start timer first time. Delay: {gameData.settings.delayEnergy}");
+                EnergyRenewal.StartTimer(gameData.settings.delayEnergy * 60);
+            }
+            if (value > 0 && value < 6)
+            {
+                saveData.energy = value;
+            }
+            else
+            {
+                saveData.energy = 0;
+            }
+        }
+    }
 
     /// <summary>
     /// <para>[EN] Main initialization of the game </para>
@@ -59,6 +85,77 @@ public static class Save {
 
         saveData = new GameSave();
         InitSavedData();
+        InitEnergy();
+        //EnergyRenewal = new Timer(Save.gameData.settings.delayEnergy * 60);
+    }
+
+    /// <summary>
+    /// [EN] Calls when user quit or pause application
+    /// [RU] Вызывается при закрытии приложения
+    /// </summary>
+    public static void GameQuitOrPause()
+    {
+        saveData.closeTime = DateTime.Now;
+        if (EnergyCount < 5)
+            saveData.timeToRenewEnergy = Save.EnergyRenewal.Interval;
+        else
+            saveData.timeToRenewEnergy = -1;
+        SaveAllUserData();
+    }
+
+    /// <summary>
+    /// [EN] Energy section initialization
+    /// [RU] Инициализация сектора энергии
+    /// </summary>
+    private static void InitEnergy()
+    {
+        if (isCalled)
+            return;
+        isCalled = true;
+        EnergyRenewal = new Timer();
+        EnergyRenewal.TimerEnd += TimeIsUp;
+
+        if (saveData.timeToRenewEnergy >= 0)
+        {
+            int offTime = (int)(DateTime.Now - Save.saveData.closeTime).TotalSeconds;
+            if (offTime >= 0)
+            {
+                if (offTime >= saveData.timeToRenewEnergy)
+                {
+                    offTime -= saveData.timeToRenewEnergy;
+                    ++saveData.energy;
+                    if (offTime > 0)
+                    {
+                        saveData.energy += offTime / (gameData.settings.delayEnergy * 60);
+                        if (saveData.energy < 5)
+                        {
+                            EnergyRenewal.StartTimer(gameData.settings.delayEnergy * 60 - offTime % (gameData.settings.delayEnergy * 60));
+                        }
+                    }
+                }
+                else
+                {
+                    EnergyRenewal.StartTimer(saveData.timeToRenewEnergy - offTime);   
+                }
+            }
+        }
+        else if (saveData.energy < 5)
+        {
+            EnergyRenewal.StartTimer(Save.gameData.settings.delayEnergy * 60);
+        }
+        EnergyCount = saveData.energy;
+    }
+
+    private static void TimeIsUp()
+    {
+        if (Save.EnergyCount < 5)
+        {
+            // TODO: sDKfja;sldkfjm
+            ++Save.EnergyCount;
+            if (LevelManager.Instance != null && LevelManager.Instance.isActiveAndEnabled)
+                LevelManager.Instance?.UpdateUI();
+            EnergyRenewal.StartTimer(Save.gameData.settings.delayEnergy * 60);
+        }
     }
 
     /// <summary>
@@ -69,14 +166,12 @@ public static class Save {
     public static void InitGameData()
     {
         string fileData = "";
+        Debug.Log($"{Application.streamingAssetsPath}");
+        Debug.Log($"{Application.dataPath}");
         if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
             Debug.Log($"[Sweet Boom Editor] platform: {curPlatform}");
-            string path;
-            if (curPlatform == Advert.CurrentPlatform.undefined)
-                path = $"{Application.streamingAssetsPath}/{gameDataPath}";
-            else 
-                path = $"{Application.streamingAssetsPath}/Raw";
+            string path = $"{Application.streamingAssetsPath}/{gameDataPath}";
             if (!File.Exists(path))
             {
                 Debug.Log("Open Dudle/Level Editor " +
@@ -109,8 +204,8 @@ public static class Save {
                     }
                 }
             }
-        } 
-        else if (curPlatform == Advert.CurrentPlatform.android) 
+        }
+        else if (curPlatform == Advert.CurrentPlatform.android)
         {
             CoroutineManager.CoroutineStart(InitGameDataAndroid());
         }
@@ -202,7 +297,8 @@ public static class Save {
         public event Action uiUpdate;
         public int coins_;
 
-        public int energy;
+        public int energy, timeToRenewEnergy;
+        public DateTime closeTime;
         public int[] boostersCount;
         public int bombBooster, searchBooster, multiCandyBooster;
         public GameSave()
@@ -211,6 +307,8 @@ public static class Save {
             levels = new List<SaveSlot>();
             boostersCount = new int[3];
             energy = 5;
+            timeToRenewEnergy = -1;
+            closeTime = DateTime.Now;
         }
 
         /// <summary>
@@ -290,7 +388,7 @@ public static class Save {
             get { return coins_; }
             set
             {
-                coins_ = value;
+                coins_ = Mathf.Clamp(value, 0, int.MaxValue);
                 uiUpdate();
             }
         }
@@ -344,7 +442,7 @@ public static class Save {
         saveData.levels = new List<SaveSlot>();
         saveData.energy = 5;
         saveData.coins_ = 1000;
-        for(int i = 0; i < gameData.levelCount; i++)
+        for(int i = 0; i < gameData.levels.Count; i++)
         {
             saveData.levels.Add(new SaveSlot(gameData.levels[i].levelNum, LevelStatus.locked));
             saveData.levels[i].levelNum = gameData.levels[i].levelNum;
@@ -363,6 +461,7 @@ public static class Save {
         else
             path = $"{Application.dataPath}/{saveFileName}";
         currentSavePath = path;
+        Debug.Log($"Save path: {currentSavePath}");
         if (!File.Exists(path))
         {
             File.Create(path).Dispose();
@@ -497,6 +596,7 @@ public static class Save {
     public class ConfigurationSettings
     {
         public bool sortingLevelsInMenu, randomizePositionOfIcons, fps;
+        public int delayEnergy;
         public string rateUsLink;
         public float distance, size;
         public Advert.AdConfig adConfig;
@@ -511,6 +611,7 @@ public static class Save {
                 distance = 130,
                 size = 0.82f,
                 fps = false,
+                delayEnergy = 15,
                 adConfig = Advert.AdConfig.SetDefaultConfig(),
                 shopItems = new List<Shop.CoinShopItem>()
                 {

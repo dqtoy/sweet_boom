@@ -19,7 +19,7 @@ public class EditLevels : EditorWindow {
     static Rect mainTextureRect, mainTextureRightRect, playFieldRect, logoRect, leftTextureRect, headerRect, logoMenuRect, logoSetRect, selectColorRect, consoleRect;
     static Vector2 scrollLevelEditor, scrollIAP;
     public static int width, height;
-    public static int updWidth, updHeight, greenAm, blueAm, orangeAm, redAm, yellowAm, purpleAm, currentLvlNum, maxGoals, maxScore, candyReward, goalReward, lvlCompleteRew, lvlCompleteAgain, lvlSuperCompl;
+    public static int updWidth, updHeight, greenAm, blueAm, orangeAm, redAm, yellowAm, purpleAm, currentLvlNum, maxGoals, maxScore, candyReward, goalReward, lvlCompleteRew, lvlCompleteAgain, lvlSuperCompl, delayEnergy;
     public static string rateUsLink;
     public static int[] starTargetScore = new int[2];
     private bool isDataEx;
@@ -38,7 +38,7 @@ public class EditLevels : EditorWindow {
     static GameObject menuObj, levelObj;
     public string levelPrefabPath;
     static Rect menuTextureRect;
-    static bool randomize, sortingLevels;
+    public static bool randomize, sortingLevels;
     public static float sliderValueDistance, sliderValueSize;
     public static ConfigurationSettings conf;
     public static GameObject[] levels;
@@ -718,17 +718,19 @@ public class EditLevels : EditorWindow {
                     levelObj.SetActive(true);
                     try
                     {
-                        sliderValueDistance = conf.distance;
-                        sliderValueSize = conf.size;
-                        randomize = conf.randomizePositionOfIcons;
-                        sortingLevels = conf.sortingLevelsInMenu;
+                        sliderValueDistance = LevelDatabase.data.settings.distance;
+                        sliderValueSize = LevelDatabase.data.settings.size;
+                        randomize = LevelDatabase.data.settings.randomizePositionOfIcons;
+                        sortingLevels = LevelDatabase.data.settings.sortingLevelsInMenu;
                     }
                     catch
                     {
-                        sliderValueDistance = 130;
-                        sliderValueSize = 0.82f;
-                        randomize = false;
-                        sortingLevels = true;
+                        LevelDatabase.data.settings = new ConfigurationSettings();
+                        LevelDatabase.data.settings.SetDefaultConfig();
+                        sliderValueDistance = LevelDatabase.data.settings.distance;
+                        sliderValueSize = LevelDatabase.data.settings.size;
+                        randomize = LevelDatabase.data.settings.randomizePositionOfIcons;
+                        sortingLevels = LevelDatabase.data.settings.sortingLevelsInMenu;
                     }
                 }
             }
@@ -807,7 +809,7 @@ public class EditLevels : EditorWindow {
             if (GUILayout.Button("Save changes", GUILayout.Height(40)))
             {
                 ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, 
-                    adConfig, LevelDatabase.shopItems, rateUsLink);
+                    adConfig, LevelDatabase.shopItems, rateUsLink, delayEnergy);
                 LevelDatabase.data.settings = conf;
                 LevelDatabase.SaveData();
                 menuConsole = $"[{DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}] Changes saved!";
@@ -828,10 +830,8 @@ public class EditLevels : EditorWindow {
             enableFpsCounter = EditorGUILayout.ToggleLeft("Enable fps counter in game", enableFpsCounter);
 
             rateUsLink = EditorGUILayout.TextField("Rate us button link", rateUsLink);
-            /*
-            prefab = EditorGUILayout.ObjectField(prefab, typeof(Sprite), false);
-            Blocks asset = (Blocks)AssetDatabase.LoadAssetAtPath("Assets/Candy World/Prefabs/Blocks/Green Candy.asset", typeof(Blocks));
-            */
+            delayEnergy = EditorGUILayout.IntField("Energy recovery time", delayEnergy);
+
             EditorGUILayout.LabelField("Advertisement settings", EditorStyles.boldLabel);
             adConfig.unityAdsEnable = EditorGUILayout.ToggleLeft("Use Unity Ads", adConfig.unityAdsEnable);
             adConfig.adMobEnable = EditorGUILayout.ToggleLeft("Use AdMob", adConfig.adMobEnable);
@@ -952,7 +952,7 @@ public class EditLevels : EditorWindow {
                 try
                 {
                     ConfigurationSettings conf = new ConfigurationSettings(sortingLevels, randomize, sliderValueDistance, sliderValueSize, enableFpsCounter, 
-                        adConfig, LevelDatabase.shopItems, EditLevels.rateUsLink);
+                        adConfig, LevelDatabase.shopItems, EditLevels.rateUsLink, EditLevels.delayEnergy);
                     LevelDatabase.data.settings = conf;
                     LevelDatabase.SaveData();
                 }
@@ -983,9 +983,18 @@ public class EditLevels : EditorWindow {
                     levelObj.SetActive(false);
                     try
                     {
-                        enableFpsCounter = conf.fps;
+                        enableFpsCounter = LevelDatabase.data.settings.fps;
+                        rateUsLink = LevelDatabase.data.settings.rateUsLink;
+                        delayEnergy = LevelDatabase.data.settings.delayEnergy;
                     }
-                    catch { }
+                    catch
+                    {
+                        LevelDatabase.data.settings = new ConfigurationSettings();
+                        LevelDatabase.data.settings.SetDefaultConfig();
+                        enableFpsCounter = LevelDatabase.data.settings.fps;
+                        rateUsLink = LevelDatabase.data.settings.rateUsLink;
+                        delayEnergy = LevelDatabase.data.settings.delayEnergy;
+                    }
                 }
             }
             catch {  }

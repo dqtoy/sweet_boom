@@ -30,7 +30,6 @@ public static class SceneConnect {
     {
         public int levelNum;
         public Save.Level levelInfo;
-        //public Save.GameSave.SaveSlot gameSave { get; set; }
 
         public LevelData(Save.Level levelInfo, int levelnum)
         {

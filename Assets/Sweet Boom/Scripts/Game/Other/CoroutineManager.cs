@@ -13,6 +13,7 @@ public class CoroutineManager : MonoBehaviour
             if (objectsInScene.Length < 1)
             {
                 cor = new GameObject("CoroutineManager").AddComponent(typeof(CoroutineManager)) as CoroutineManager;
+                DontDestroyOnLoad(cor);
             }
             else if (objectsInScene.Length > 1)
             {
@@ -34,5 +35,10 @@ public class CoroutineManager : MonoBehaviour
     public static void CoroutineStart(IEnumerator coroutine)
     {
         coroutineManager.StartCoroutine(coroutine);
+    }
+
+    public static void CoroutineStop(IEnumerator coroutine)
+    {
+        coroutineManager.StopCoroutine(coroutine);
     }
 }

@@ -703,12 +703,16 @@ public class GameController : MonoBehaviour, IGameController
             
             for (int i = from; i <= to; i++)
             {
-                if(FieldCell.particle[rowNum, i].textureSheetAnimation.GetSprite(0) != candyCrushSprites[(int)sweets[rowNum, i].candyID])
+                try
                 {
-                    FieldCell.particle[rowNum, i].textureSheetAnimation.RemoveSprite(0);
-                    FieldCell.particle[rowNum, i].textureSheetAnimation.AddSprite(candyCrushSprites[(int)sweets[rowNum, i].candyID]);
+                    if (FieldCell.particle[rowNum, i].textureSheetAnimation.GetSprite(0) != candyCrushSprites[(int)sweets[rowNum, i].candyID])
+                    {
+                        FieldCell.particle[rowNum, i].textureSheetAnimation.RemoveSprite(0);
+                        FieldCell.particle[rowNum, i].textureSheetAnimation.AddSprite(candyCrushSprites[(int)sweets[rowNum, i].candyID]);
+                    }
+                    FieldCell.particle[rowNum, i].Play();
                 }
-                FieldCell.particle[rowNum, i].Play();
+                catch { }
                 Destroy(sweets[rowNum, i].cell);
                 sweets[rowNum, i].candyID = Save.CandyType.nil;
             }
@@ -725,12 +729,16 @@ public class GameController : MonoBehaviour, IGameController
             
             for (int i = from; i <= to; i++)
             {
-                if (FieldCell.particle[i, rowNum].textureSheetAnimation.GetSprite(0) != candyCrushSprites[(int)sweets[i, rowNum].candyID])
+                try
                 {
-                    FieldCell.particle[i, rowNum].textureSheetAnimation.RemoveSprite(0);
-                    FieldCell.particle[i, rowNum].textureSheetAnimation.AddSprite(candyCrushSprites[(int)sweets[i, rowNum].candyID]);
+                    if (FieldCell.particle[i, rowNum].textureSheetAnimation.GetSprite(0) != candyCrushSprites[(int)sweets[i, rowNum].candyID])
+                    {
+                        FieldCell.particle[i, rowNum].textureSheetAnimation.RemoveSprite(0);
+                        FieldCell.particle[i, rowNum].textureSheetAnimation.AddSprite(candyCrushSprites[(int)sweets[i, rowNum].candyID]);
+                    }
+                    FieldCell.particle[i, rowNum].Play();
                 }
-                FieldCell.particle[i, rowNum].Play();
+                catch {  }
                 sweets[i, rowNum].candyID = Save.CandyType.nil;
                 Destroy(sweets[i, rowNum].cell);
             }
@@ -1281,7 +1289,7 @@ public class GameController : MonoBehaviour, IGameController
             return Task.FromResult(false);
         }
     }
-
+    /*
     private IEnumerator DestroyParticles(int time)
     {
         yield return new WaitForSeconds(time);
@@ -1290,7 +1298,18 @@ public class GameController : MonoBehaviour, IGameController
 
         }
     }
-    
+    */
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+            Save.GameQuitOrPause();
+    }
+
+    private void OnApplicationQuit()
+    {
+        Save.GameQuitOrPause();
+    }
+
     public enum FaderFunctions
     {
         toBlackAndBack = 1,

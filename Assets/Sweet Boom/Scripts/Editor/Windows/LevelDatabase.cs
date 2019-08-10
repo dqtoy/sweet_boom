@@ -256,13 +256,14 @@ public class Level // Levels class for save added levels by developer
 public class ConfigurationSettings // Settings for SweetBoom editor
 {
     public bool sortingLevelsInMenu, randomizePositionOfIcons, fps;
+    public int delayEnergy;
     public string rateUsLink;
     public float distance, size;
     public Advert.AdConfig adConfig;
     public List<Shop.CoinShopItem> shopItems;
 
     public ConfigurationSettings(bool sorting, bool randomize, float dist, float size, bool fps, 
-        Advert.AdConfig adConfig, List<Shop.CoinShopItem> shopItems, string rateUs)
+        Advert.AdConfig adConfig, List<Shop.CoinShopItem> shopItems, string rateUs, int delayEnergy)
     {
         sortingLevelsInMenu = sorting;
         randomizePositionOfIcons = randomize;
@@ -272,6 +273,7 @@ public class ConfigurationSettings // Settings for SweetBoom editor
         this.adConfig = adConfig;
         this.shopItems = shopItems;
         this.rateUsLink = rateUs;
+        this.delayEnergy = delayEnergy;
     }
 
     public ConfigurationSettings() { }

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Yellow Candy
   m_EditorClassIdentifier: 
   item: {fileID: 0}
-  itemName: 
+  nameOfItem: 
+  priceInStore: 0
   itemSprite: {fileID: 21300000, guid: efd55492cea59b141bce09951bbec264, type: 3}
-  useBoxCollider: 0

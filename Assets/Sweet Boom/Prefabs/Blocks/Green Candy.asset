@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Green Candy
   m_EditorClassIdentifier: 
   item: {fileID: 0}
-  itemName: 
-  itemSprite: {fileID: 21300000, guid: 6e87f35df030bbe4fae8fbe84888ff28, type: 3}
-  useBoxCollider: 0
+  nameOfItem: 
+  priceInStore: 0
+  itemSprite: {fileID: 21300000, guid: 4278835cd00e89a429b94c61c96e8b40, type: 3}

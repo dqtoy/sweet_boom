@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -19,7 +20,6 @@ public class LevelManager : MonoBehaviour {
     public GameObject levelInfo;
     public TextMeshProUGUI levelNumTxt;
     [SerializeField] private GameObject levelInfoAnim;
-    [SerializeField] private GameObject[] energy;
     [SerializeField] private TextMeshProUGUI coinBalance;
     [SerializeField] private GameObject buyCoinsPanel;
     [SerializeField] private GameObject buyCoinsAnim;
@@ -29,7 +29,9 @@ public class LevelManager : MonoBehaviour {
     [SerializeField] private GameObject cloudPrefab;
     [SerializeField] private GameObject levelFieldGameobject;
     [SerializeField] public TextMeshProUGUI debugGUI;
-    //public static Save.GameData gameData; // MAIN GAME DATA
+    [SerializeField] public TextMeshProUGUI energyCountTxt;
+    [SerializeField] public Sprite disabledAddButtonSprite, enabledAddButtonSprite;
+    [SerializeField] public Button addEnergyButton;
     public static Save.ConfigurationSettings configuration;
     static bool isInit;
     static LevelManager lvlManagerScript;
@@ -37,6 +39,35 @@ public class LevelManager : MonoBehaviour {
     private Menu.FaderMethods function;
     private static int curLevel;
     private static bool btnAlertPressed = false;
+    private static int timeToRenewEnergy;
+
+    public int EnergyTxt
+    {
+        set
+        {
+            if (Save.EnergyCount > 0)
+            {
+                energyCountTxt.text = value.ToString();
+                addEnergyButton.gameObject.GetComponent<Image>().sprite = disabledAddButtonSprite;
+                addEnergyButton.interactable = false;
+            }
+            else
+            {
+                energyCountTxt.text = "";
+                addEnergyButton.gameObject.GetComponent<Image>().sprite = enabledAddButtonSprite;
+                addEnergyButton.interactable = true;
+            }
+        }
+    }
+
+    #region SingletonPattern
+    public static LevelManager Instance { get; private set; }
+    private void SingletonPatternInit()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
+    #endregion
 
     #region Clouds
     private CloudMoves[] clouds;
@@ -46,12 +77,13 @@ public class LevelManager : MonoBehaviour {
 
     private void Awake()
     {
+        SingletonPatternInit();
         Save.Init();
         UpdateLevels();
         Save.saveData.LevelsCollisionRemove();
-        UpdateEnergy();
         canSelectLevel = true;
         Save.saveData.uiUpdate += () => { coinBalance.text = Save.saveData.Coins.ToString(); };
+        Save.EnergyRenewal.Tick += TimerTick;
         CloudsSetup();
     }
 
@@ -61,13 +93,9 @@ public class LevelManager : MonoBehaviour {
         UpdateUI();
     }
 
-    private void UpdateEnergy()
+    private void OnDisable()
     {
-        for (int i = 0; i < 5; i++)
-        {
-            if(i < Save.saveData.energy) energy[i].gameObject.SetActive(true);
-            else energy[i].gameObject.SetActive(false);
-        }
+        Save.EnergyRenewal.Tick -= TimerTick;
     }
 
     private void Update()
@@ -82,12 +110,19 @@ public class LevelManager : MonoBehaviour {
             {
                 clouds[i].rect.anchoredPosition = new Vector2(clouds[i].rect.anchoredPosition.x - clouds[i].speed * Time.deltaTime, clouds[i].rect.anchoredPosition.y);
             }
-
             if (Mathf.Abs(clouds[i].rect.anchoredPosition.x) >= 600)
             {
                 clouds[i].left = !clouds[i].left;
                 clouds[i].rect.anchoredPosition = clouds[i].left == true ? new Vector2(-599, clouds[i].rect.anchoredPosition.y) : new Vector2(599, clouds[i].rect.anchoredPosition.y);
             }
+        }
+    }
+
+    public void TimerTick(int time)
+    {
+        if (Save.EnergyCount < 1)
+        {
+            energyCountTxt.text = time % 60 > 9 ? $"{time / 60}:{time % 60}" : $"{time / 60}:0{time % 60}";
         }
     }
 
@@ -101,7 +136,6 @@ public class LevelManager : MonoBehaviour {
         clouds = new CloudMoves[cloudsCount];
         for(int i = 0; i < cloudsCount; i++)
         {
-            //bool left = UnityEngine.Random.Range(1, 3) == 1 ? true : false;
             left = !left;
             clouds[i] = new CloudMoves(Instantiate(cloudPrefab, new Vector3(), Quaternion.identity), cloudsParentObject, left, cloudYPos, UnityEngine.Random.Range(30, 70));
             cloudYPos += (int)cloudYInterval;
@@ -110,9 +144,10 @@ public class LevelManager : MonoBehaviour {
 
     public void UpdateUI()
     {
+        Debug.Log("Update UI");
         coinBalance.text = Save.saveData.Coins.ToString();
+        EnergyTxt = Save.EnergyCount;
         UpdateLevels();
-        UpdateEnergy();
     }
     public static void UpdateLevels()
     {
@@ -194,13 +229,10 @@ public class LevelManager : MonoBehaviour {
                 SoundController.PlaySound(SoundController.SoundType.clickOpen);
                 break;
             case "#EnergyBack":
-                if (Save.saveData.energy < 1)
-                {
-                    canSelectLevel = false;
-                    energyPanel.gameObject.SetActive(true);
-                    energyPanelAnim.GetComponent<Animator>().SetTrigger("open");
-                    SoundController.PlaySound(SoundController.SoundType.clickOpen);
-                }
+                energyPanel.gameObject.SetActive(true);
+                energyPanelAnim.GetComponent<Animator>().SetTrigger("open");
+                SoundController.PlaySound(SoundController.SoundType.clickOpen);
+                canSelectLevel = false;
                 break;
             case "#rewarded_video":
                 
@@ -231,9 +263,9 @@ public class LevelManager : MonoBehaviour {
     }
     public void Play()
     {
-        if(Save.saveData.energy > 0)
+        if(Save.EnergyCount > 0)
         {
-            Save.saveData.energy--;
+            Save.EnergyCount--;
             SoundController.PlaySound(SoundController.SoundType.clickOpen);
             function = () =>
             {
