@@ -243,6 +243,7 @@ public class GameController : MonoBehaviour, IGameController
     }
     private void FixedUpdate()
     {
+        //Debug.Log(canTouch);
         if(Save.configuration != null) if (Save.configuration.fps) fpsCounter.text = $"fps: {(int)(1 / Time.deltaTime)}";
     }
     private void ChangeCandiesPositions(bool withCheck, FieldCell obj, Direction direction) // 
@@ -396,6 +397,7 @@ public class GameController : MonoBehaviour, IGameController
                 candyID = Save.CandyType.nil;
                 for (int j = 0; j < targetJ; j++)
                 {
+                    //Debug.Log("Test");
                     if (vertical) { changeI = j; changeJ = i; }
                     else { changeI = i; changeJ = j; }
                     if (sweets[changeI, changeJ]?.candyID != Save.CandyType.nil)
@@ -515,7 +517,9 @@ public class GameController : MonoBehaviour, IGameController
                 }
             }
             if (counter > 100) noDuplicates = 2;
+            Debug.Log("a");
         }
+        //Debug.Log("test");
         if (!isDeleted) OnNothingToDelete(thisObjField, objChangeDirection);
         else
         {
@@ -826,8 +830,10 @@ public class GameController : MonoBehaviour, IGameController
                             {
                                 for (int y = p + 1; y < levelData.levelInfo.fieldHeight; y++)
                                 {
-                                    if (sweets[y, i].candyID == Save.CandyType.nil && sweets[y, i].blockID == Save.BlockID.candy) sweets[y, i].cell = null;
-                                    else if (sweets[y, i].blockID == Save.BlockID.candy && sweets[y, i].candyID != Save.CandyType.nil) break;
+                                    if (sweets[y, i].candyID == Save.CandyType.nil && sweets[y, i].blockID == Save.BlockID.candy && sweets[y, i].candyID != Save.CandyType.empty)
+                                        sweets[y, i].cell = null;
+                                    else if (sweets[y, i].blockID == Save.BlockID.candy && sweets[y, i].candyID != Save.CandyType.nil)
+                                        break;
                                 }
                             }
                             break;
@@ -844,9 +850,13 @@ public class GameController : MonoBehaviour, IGameController
             }
             float posY = firstPosY + blockSize;
             int from = levelData.levelInfo.fieldHeight - 1;
-            bool isFirstCandyInColumnFinded = false;
+            bool isFirstCandyInColumnFinded = false, isEmptyBlockFirst = true;
             for (int j = 0; j < levelData.levelInfo.fieldHeight; j++) // finding block in the column
             {
+                if (sweets[j, i].candyID == Save.CandyType.empty && isEmptyBlockFirst)
+                    continue;
+                else if (sweets[j, i].candyID != Save.CandyType.empty && isEmptyBlockFirst)
+                    isEmptyBlockFirst = false;
                 if (isFirstCandyInColumnFinded)
                 {
                     if ((mods[j, i].blockID == Save.BlockID.block || mods[j, i].blockID == Save.BlockID.empty) && j - 1 >= 0)
@@ -860,13 +870,19 @@ public class GameController : MonoBehaviour, IGameController
                         break;
                     }
                 }
-                else if (sweets[j, i].blockID == Save.BlockID.candy || (mods[j, i].blockID == Save.BlockID.block && j != 0)) isFirstCandyInColumnFinded = true;
-                else if (mods[j, i].blockID == Save.BlockID.block && j == 0) { from = -1; break; }
+                else if (sweets[j, i].blockID == Save.BlockID.candy) // fhdghfg
+                    isFirstCandyInColumnFinded = true;
+                else if (mods[j, i].blockID == Save.BlockID.block && j == 0)
+                {
+                    from = -1;
+                    break;
+                }
             }
-            if (from == -1) continue;
+            if (from == -1)
+                continue;
             for (int j = from; j >= 0; j--)
             {
-                if (sweets[j, i].blockID != Save.BlockID.empty && sweets[j, i].candyID == Save.CandyType.nil && mods[j, i].blockID != Save.BlockID.block)
+                if (sweets[j, i].blockID != Save.BlockID.empty && sweets[j, i].candyID == Save.CandyType.nil && mods[j, i].blockID != Save.BlockID.block && sweets[j, i].candyID != Save.CandyType.empty)
                 {
                     int r = Save.Randomizer(0, itemData.candies.Length - 1);
                     sweets[j, i] = new FieldCell();
@@ -931,6 +947,7 @@ public class GameController : MonoBehaviour, IGameController
     public void OnCandyProcessesStarts() => canTouch = false;    
     public void OnCandyProcessesEnded(bool refill)
     {
+        Debug.Log("end");
         for (int i = 0; i < levelData.levelInfo.fieldHeight; ++i)
             for (int j = 0; j < levelData.levelInfo.fieldWidth; ++j)
                 if (sweets[i, j].blockID != Save.BlockID.empty)
@@ -977,6 +994,7 @@ public class GameController : MonoBehaviour, IGameController
     }
     public void OnNothingToDelete(FieldCell obj, Direction dir)
     {
+        Debug.Log("nth");
         ChangeCandiesPositions(false, obj, dir);
         candiesOperationsEnded(false);
     }
@@ -1036,7 +1054,6 @@ public class GameController : MonoBehaviour, IGameController
             fallingSpeed = 2;
             animationSpeed = 2;
         }
-
         blocks = new GameObject[levelData.levelInfo.fieldHeight, levelData.levelInfo.fieldWidth];
         sweets = new FieldCell[levelData.levelInfo.fieldHeight, levelData.levelInfo.fieldWidth];
         mods = new FieldCell[levelData.levelInfo.fieldHeight, levelData.levelInfo.fieldWidth];
@@ -1058,21 +1075,20 @@ public class GameController : MonoBehaviour, IGameController
         blockSize = blockSize1 <= blockSize2 ? blockSize1 : blockSize2;
         float redCrossSize = blockSize * 0.95f;
         CandiesDistance = blockSize;
-        if (blockSize > 0.7f) blockSize = 0.7f;
+        if (blockSize > 0.7f)
+            blockSize = 0.7f;
         blockPrefab.transform.localScale = new Vector3(blockSize / blockPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size.x,
             blockSize / blockPrefab.GetComponent<SpriteRenderer>().sprite.bounds.size.x, 0);
         candySize = new float[itemData.candies.Length];
         modSize = new float[itemData.other.Length];
-        redCrosses = new BoosterAnimationItem[levelData.levelInfo.fieldWidth, levelData.levelInfo.fieldHeight];
-        for(int i = 0; i < levelData.levelInfo.fieldWidth; i++)
-        {
-            for(int j = 0; j < levelData.levelInfo.fieldHeight; j++)
-            {
+        redCrosses = new BoosterAnimationItem[levelData.levelInfo.fieldHeight, levelData.levelInfo.fieldWidth];
+        for(int i = 0; i < levelData.levelInfo.fieldHeight; i++)
+            for (int j = 0; j < levelData.levelInfo.fieldWidth; j++)
                 redCrosses[i, j] = new BoosterAnimationItem();
-            }
-        }
-        for (int i = 0; i < candySize.Length; i++) candySize[i] = blockSize / itemData.candies[i].itemSprite.bounds.size.x;
-        for (int i = 0; i < modSize.Length; i++) modSize[i] = blockSize / itemData.other[i].itemSprite.bounds.size.x;
+        for (int i = 0; i < candySize.Length; i++)
+            candySize[i] = blockSize / itemData.candies[i].itemSprite.bounds.size.x;
+        for (int i = 0; i < modSize.Length; i++)
+            modSize[i] = blockSize / itemData.other[i].itemSprite.bounds.size.x;
         float posX, posY;
         try
         {
@@ -1081,11 +1097,15 @@ public class GameController : MonoBehaviour, IGameController
             maskPlayField.GetComponent<SpriteMask>().sprite = maskSprite;
             maskPlayField.transform.localScale = new Vector3(blockSize * levelData.levelInfo.fieldWidth * maskPlayField.transform.localScale.x / maskPlayField.GetComponent<SpriteMask>().sprite.bounds.size.x,
                 blockSize * levelData.levelInfo.fieldHeight * maskPlayField.transform.localScale.y / maskPlayField.GetComponent<SpriteMask>().sprite.bounds.size.y, 1);
-            if (levelData.levelInfo.fieldWidth % 2 == 0) posX = -1 * (levelData.levelInfo.fieldWidth / 2 * blockSize - blockSize / 2);
-            else posX = -1 * (levelData.levelInfo.fieldWidth / 2 * blockSize);
+            if (levelData.levelInfo.fieldWidth % 2 == 0)
+                posX = -1 * (levelData.levelInfo.fieldWidth / 2 * blockSize - blockSize / 2);
+            else
+                posX = -1 * (levelData.levelInfo.fieldWidth / 2 * blockSize);
 
-            if (levelData.levelInfo.fieldHeight % 2 == 0) posY = centerY + (levelData.levelInfo.fieldHeight / 2 * blockSize - blockSize / 2);
-            else posY = centerY + (levelData.levelInfo.fieldHeight / 2 * blockSize);
+            if (levelData.levelInfo.fieldHeight % 2 == 0)
+                posY = centerY + (levelData.levelInfo.fieldHeight / 2 * blockSize - blockSize / 2);
+            else
+                posY = centerY + (levelData.levelInfo.fieldHeight / 2 * blockSize);
             bool swicther = true;
             float memX = posX;
             firstPosX = posX;
@@ -1201,7 +1221,7 @@ public class GameController : MonoBehaviour, IGameController
                             {
                                 blocks[i, y] = null;
                                 sweets[i, y].blockID = Save.BlockID.empty;
-                                sweets[i, y].candyID = Save.CandyType.nil;
+                                sweets[i, y].candyID = Save.CandyType.empty;
                                 mods[i, y].blockID = Save.BlockID.empty;
                                 swicther = !swicther;
                                 posX += blockSize;

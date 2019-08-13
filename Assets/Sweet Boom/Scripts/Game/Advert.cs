@@ -171,7 +171,6 @@ public static class Advert
     /// <param name="place">Where we should show this ad</param>
     public static void ShowAdvertisementInterstitial(AdConfig.ShowPlace place)
     {
-        Debug.Log($"Advertisement: {place}");
         if (isInit)
         {
             for (int i = 0; i < adConfig.interstitial.Length; ++i)

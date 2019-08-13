@@ -34,7 +34,6 @@ public class Timer : MonoBehaviour
         ++Interval;
         while (--Interval >= 0)
         {
-            Debug.Log($"Tick: {Interval}");
             Tick?.Invoke(Interval);
             yield return new WaitForSeconds(1);
         }

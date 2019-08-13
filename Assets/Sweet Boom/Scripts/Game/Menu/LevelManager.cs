@@ -79,11 +79,13 @@ public class LevelManager : MonoBehaviour {
     {
         SingletonPatternInit();
         Save.Init();
+        Save.EnergyRenewal.Tick += TimerTick;
+        SingletonPatternInit();
         UpdateLevels();
         Save.saveData.LevelsCollisionRemove();
         canSelectLevel = true;
         Save.saveData.uiUpdate += () => { coinBalance.text = Save.saveData.Coins.ToString(); };
-        Save.EnergyRenewal.Tick += TimerTick;
+        
         CloudsSetup();
     }
 
@@ -144,7 +146,6 @@ public class LevelManager : MonoBehaviour {
 
     public void UpdateUI()
     {
-        Debug.Log("Update UI");
         coinBalance.text = Save.saveData.Coins.ToString();
         EnergyTxt = Save.EnergyCount;
         UpdateLevels();

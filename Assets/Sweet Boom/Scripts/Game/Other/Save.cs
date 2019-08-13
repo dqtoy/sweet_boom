@@ -52,13 +52,13 @@ public static class Save {
                 Debug.Log($"Start timer first time. Delay: {gameData.settings.delayEnergy}");
                 EnergyRenewal.StartTimer(gameData.settings.delayEnergy * 60);
             }
-            if (value > 0 && value < 6)
+            if (value < 0)
             {
-                saveData.energy = value;
+                Debug.LogError("[Sweet Boom Editor] Energy set error");
             }
             else
             {
-                saveData.energy = 0;
+                saveData.energy = Mathf.Clamp(value, 0, 5);
             }
         }
     }
@@ -97,7 +97,7 @@ public static class Save {
     {
         saveData.closeTime = DateTime.Now;
         if (EnergyCount < 5)
-            saveData.timeToRenewEnergy = Save.EnergyRenewal.Interval;
+            saveData.timeToRenewEnergy = EnergyRenewal.Interval;
         else
             saveData.timeToRenewEnergy = -1;
         SaveAllUserData();
@@ -115,10 +115,10 @@ public static class Save {
         EnergyRenewal = new Timer();
         EnergyRenewal.TimerEnd += TimeIsUp;
 
-        if (saveData.timeToRenewEnergy >= 0)
+        if (saveData.timeToRenewEnergy >= 0 && saveData.energy < 5)
         {
-            int offTime = (int)(DateTime.Now - Save.saveData.closeTime).TotalSeconds;
-            if (offTime >= 0)
+            int offTime = (int)(DateTime.Now - saveData.closeTime).TotalSeconds;
+            if (offTime > 0)
             {
                 if (offTime >= saveData.timeToRenewEnergy)
                 {
@@ -138,23 +138,28 @@ public static class Save {
                     EnergyRenewal.StartTimer(saveData.timeToRenewEnergy - offTime);   
                 }
             }
-        }
-        else if (saveData.energy < 5)
-        {
-            EnergyRenewal.StartTimer(Save.gameData.settings.delayEnergy * 60);
+            else if (offTime < 0) // cheat
+            {
+                Debug.Log("[Sweet Boom Editor] Time travel incident");
+                saveData.energy = 0;
+                saveData.Coins -= 2000;
+                EnergyRenewal.StartTimer(gameData.settings.delayEnergy * 60);
+            }
+            else
+            {
+                EnergyRenewal.StartTimer(gameData.settings.delayEnergy * 60);
+            }
         }
         EnergyCount = saveData.energy;
     }
 
     private static void TimeIsUp()
     {
-        if (Save.EnergyCount < 5)
+        if (EnergyCount < 5)
         {
-            // TODO: sDKfja;sldkfjm
-            ++Save.EnergyCount;
+            ++EnergyCount;
             if (LevelManager.Instance != null && LevelManager.Instance.isActiveAndEnabled)
-                LevelManager.Instance?.UpdateUI();
-            EnergyRenewal.StartTimer(Save.gameData.settings.delayEnergy * 60);
+                LevelManager.Instance.UpdateUI();
         }
     }
 
@@ -166,8 +171,6 @@ public static class Save {
     public static void InitGameData()
     {
         string fileData = "";
-        Debug.Log($"{Application.streamingAssetsPath}");
-        Debug.Log($"{Application.dataPath}");
         if (curPlatform == Advert.CurrentPlatform.undefined || curPlatform == Advert.CurrentPlatform.ios)
         {
             Debug.Log($"[Sweet Boom Editor] platform: {curPlatform}");
@@ -185,21 +188,18 @@ public static class Save {
                 gameData = JsonConvert.DeserializeObject<GameData>(fileData);
                 gameData = gameData ?? GameData.SetDefualt();
                 configuration = gameData.settings ?? ConfigurationSettings.SetDefaultConfig();
-                if (configuration.sortingLevelsInMenu) // Level sorting
+                for (int i = 0; i < gameData.levels.Count - 1; i++)
                 {
-                    for (int i = 0; i < gameData.levels.Count - 1; i++)
+                    int min = int.MaxValue;
+                    Level minLvl = new Level();
+                    for (int j = i; j < gameData.levels.Count; j++)
                     {
-                        int min = int.MaxValue;
-                        Level minLvl = new Level();
-                        for (int j = i; j < gameData.levels.Count; j++)
+                        if (gameData.levels[j].levelNum < min)
                         {
-                            if (gameData.levels[j].levelNum < min)
-                            {
-                                min = gameData.levels[j].levelNum;
-                                Level l = gameData.levels[i];
-                                gameData.levels[i] = gameData.levels[j];
-                                gameData.levels[j] = l;
-                            }
+                            min = gameData.levels[j].levelNum;
+                            Level l = gameData.levels[i];
+                            gameData.levels[i] = gameData.levels[j];
+                            gameData.levels[j] = l;
                         }
                     }
                 }
@@ -461,7 +461,6 @@ public static class Save {
         else
             path = $"{Application.dataPath}/{saveFileName}";
         currentSavePath = path;
-        Debug.Log($"Save path: {currentSavePath}");
         if (!File.Exists(path))
         {
             File.Create(path).Dispose();
@@ -546,7 +545,8 @@ public static class Save {
         orange, 
         purple,
         multi,
-        nil = -1
+        nil = -1,
+        empty = -2
     }
     [Serializable]
     public class GameData // All game data from SweetBoom editor

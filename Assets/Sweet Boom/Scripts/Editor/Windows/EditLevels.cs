@@ -736,8 +736,10 @@ public class EditLevels : EditorWindow {
             }
             catch { }
             GUILayout.BeginArea(menuTextureRect);
-            if(menuObj != null && levelObj != null) EditorGUILayout.HelpBox($"Here you can spawn level icons. You have {LevelDatabase.data.levels.Count} levels.", MessageType.Info);
-            else EditorGUILayout.HelpBox("Can't find required components or the wrong scene is open.", MessageType.Error);
+            if (menuObj != null && levelObj != null)
+                EditorGUILayout.HelpBox($"Here you can spawn level icons. You have {LevelDatabase.data.levels.Count} levels.", MessageType.Info);
+            else
+                EditorGUILayout.HelpBox("Can't find required components or the wrong scene is open.", MessageType.Error);
             
             GUILayout.Label("Distance between icons:");
             GUILayout.BeginHorizontal();
@@ -750,52 +752,98 @@ public class EditLevels : EditorWindow {
             sliderValueSize = GUILayout.HorizontalSlider(sliderValueSize, 0.3f, 1);
             sliderValueSize = (float)Math.Round(EditorGUILayout.FloatField(sliderValueSize, GUILayout.Width(50)), 2);
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginVertical("box");
+            EditorGUILayout.LabelField("Level field container", EditorStyles.boldLabel);
+            try
+            {
+                GUILayout.BeginHorizontal();
+                GameObject levelContainer = GameObject.Find("#LevelField");
+                if (levelContainer == null)
+                    throw new Exception("Can't find #LevelField object on scene!");
+                GUILayout.Label($"Current height of levels container: {levelContainer.GetComponent<RectTransform>().offsetMax.y}");
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("-500"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax = 
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y - 500);
+                if (GUILayout.Button("-200"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax =
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y - 200);
+                if (GUILayout.Button("-50"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax =
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y - 50);
+                if (GUILayout.Button("+50"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax =
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y + 50);
+                if (GUILayout.Button("+200"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax =
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y + 200);
+                if (GUILayout.Button("+500"))
+                    levelContainer.GetComponent<RectTransform>().offsetMax =
+                        new Vector2(levelContainer.GetComponent<RectTransform>().offsetMax.x, levelContainer.GetComponent<RectTransform>().offsetMax.y + 500);
+                GUILayout.EndHorizontal();
+            }
+            catch
+            {
+                GUILayout.Label("Can't find #LevelField object on scene!");
+            }
+            GUILayout.EndVertical();
+
             GUILayout.BeginHorizontal();
             randomize = EditorGUILayout.Toggle(randomize);
             GUILayout.Label("Randomize x position of icons.");
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            sortingLevels = EditorGUILayout.Toggle(sortingLevels);
-            GUILayout.Label("Sorting levels when game start.");
-            GUILayout.Label(" ");
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create level icons", GUILayout.Height(25)))
+            if (GUILayout.Button("Create unloaded level icons", GUILayout.Height(25)))
             {
                 try
                 {
                     levels = new GameObject[LevelDatabase.data.levels.Count];
                     GameObject parent = GameObject.Find("#LevelIconsParent");
                     GameObject[] oldLevels = GameObject.FindGameObjectsWithTag("Level");
-                    foreach(GameObject obj in oldLevels) DestroyImmediate(obj);
-                    for(int i = 0; i < LevelDatabase.data.levels.Count; i++)
+                    int newLevelsCount = LevelDatabase.data.levels.Count - oldLevels.Length;
+                    for (int i = 0; i < LevelDatabase.data.levels.Count; i++)
                     {
-                        levels[i] = Instantiate((GameObject)AssetDatabase.LoadAssetAtPath("Assets/Sweet Boom/Prefabs/Level.prefab", typeof(GameObject)), Vector3.zero, Quaternion.identity);
-                        levels[i].transform.parent = parent.transform;
-                        levels[i].GetComponent<RectTransform>().localScale = new Vector3(sliderValueSize, sliderValueSize, sliderValueSize);
-                        if(randomize)
+                        if (i < oldLevels.Length)
                         {
-                            if (i == 0) levels[i].GetComponent<RectTransform>().localPosition = new Vector2(UnityEngine.Random.Range(-200, 200), 200);
-                            else levels[i].GetComponent<RectTransform>().localPosition = new Vector2(UnityEngine.Random.Range(-200, 200), 
-                                levels[i - 1].GetComponent<RectTransform>().localPosition.y + sliderValueDistance);
+                            levels[i] = oldLevels[i];
                         }
                         else
                         {
-                            if (i == 0) levels[i].GetComponent<RectTransform>().localPosition = new Vector2(0, 200);
-                            else levels[i].GetComponent<RectTransform>().localPosition = 
-                                    new Vector2(0, levels[i - 1].GetComponent<RectTransform>().localPosition.y + sliderValueDistance);
+                            levels[i] = Instantiate((GameObject)AssetDatabase.LoadAssetAtPath("Assets/Sweet Boom/Prefabs/Level.prefab", typeof(GameObject)), Vector3.zero, Quaternion.identity);
+                            levels[i].transform.parent = parent.transform;
+                            levels[i].GetComponent<RectTransform>().localScale = new Vector3(sliderValueSize, sliderValueSize, sliderValueSize);
+                            if (randomize)
+                            {
+                                if (i == 0)
+                                    levels[i].GetComponent<RectTransform>().localPosition = new Vector2(UnityEngine.Random.Range(-200, 200), 200);
+                                else
+                                    levels[i].GetComponent<RectTransform>().localPosition = new Vector2(UnityEngine.Random.Range(-200, 200),
+                                        levels[i - 1].GetComponent<RectTransform>().localPosition.y + sliderValueDistance);
+                            }
+                            else
+                            {
+                                if (i == 0)
+                                    levels[i].GetComponent<RectTransform>().localPosition = new Vector2(0, 200);
+                                else
+                                    levels[i].GetComponent<RectTransform>().localPosition =
+                                        new Vector2(0, levels[i - 1].GetComponent<RectTransform>().localPosition.y + sliderValueDistance);
+                            }
+                            levels[i].gameObject.name = $"#level:{i + 1}";
+                            levels[i].transform.Find("#Stars").gameObject.SetActive(true);
+                            levels[i].transform.Find("#LevelNumber").GetComponent<TextMeshProUGUI>().text = $"{i + 1}";
+                            Selection.activeGameObject = levels[i].gameObject;
+                            EditorGUIUtility.PingObject(levels[i]);
                         }
-                        levels[i].gameObject.name = $"#level:{i + 1}";
-                        levels[i].transform.Find("#Stars").gameObject.SetActive(true);
-                        levels[i].transform.Find("#LevelNumber").GetComponent<TextMeshProUGUI>().text = $"{i + 1}";
-                        Selection.activeGameObject = levels[i].gameObject;
-                        EditorGUIUtility.PingObject(levels[i]);
                     }
                     menuConsole = $"[{DateTime.Now.Hour}:{DateTime.Now.Minute}] Levels spawned.";
                 }
                 catch
                 {
                     NewLevelWin.OpenWindowNew(NewLevelWin.WindowType.notification);
+                    Debug.Log("[Sweet Boom Editor] Can't find 'Level.prefab' at 'Assets/Sweet Boom/Prefabs/Level.prefab' directory.");
                 }
             }
             if(GUILayout.Button("Delete level icons", GUILayout.Height(25)))

@@ -229,6 +229,7 @@ public class Shop : MonoBehaviour
 
     public void BuyCoins(int id)
     {
+        Debug.Log("Buy ");
         foreach (var cell in IAPManager.coins)
         {
             if (cell.unityIAPId == Save.configuration.shopItems[id].unityIAPId && 
